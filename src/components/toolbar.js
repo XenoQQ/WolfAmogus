@@ -36,6 +36,8 @@ const GameTitle = styled.div`
 
     align-items: center;
     justify-content: center;
+
+    z-index: 100;
 `;
 
 const ButtonSection = styled.div`
@@ -45,6 +47,8 @@ const ButtonSection = styled.div`
     height: 60px;
 
     margin: 40px 40px 0 0;
+
+    z-index: 100;
 `;
 
 const AchButton = styled.button`
@@ -88,6 +92,8 @@ const RulButton = styled.button`
     border-radius: 10px;
 
     cursor: pointer;
+
+    
 `;
 
 const Toolbar = () => {

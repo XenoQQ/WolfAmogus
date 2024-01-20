@@ -1,6 +1,6 @@
+/* eslint-disable no-unused-expressions */
 import styled from "styled-components";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
 import Sheep from "../assets/amogus.png";
@@ -15,37 +15,36 @@ const MainWrapper = styled.div`
     display: flex;
 
     width: 100%;
-    height: 95vh;
+    height: 100vh;
 `;
 
 const Field = styled.div`
     display: flex;
 
     width: ${(props) =>
-        props.title === "Левый берег"
-            ? `calc(100%/4)`
-            : props.title === "Правый берег"
-            ? `calc(100%/4)`
-            : `calc(100%/2)`};
+        props.title === "Река" ? "calc(100%/2)" : "calc(100%/4)"};
+
     height: 100%;
 
     background: ${(props) =>
             props.title === "Река"
-                ? `no-repeat center/60% url(${Ship})`
+                ? `no-repeat ${
+                      props.className.includes("onLeft")
+                          ? `left/60%`
+                          : `right/60%`
+                  }  url(${Ship})`
                 : `none`},
         ${(props) =>
-            props.title === "Левый берег"
-                ? `center/120px url(${Sand})`
-                : props.title === "Правый берег"
-                ? `center/120px url(${Sand})`
-                : `center/120px url(${Water})`};
-
-    padding: 20px;
+            props.title === "Река"
+                ? `center/120px url(${Water})`
+                : `center/120px url(${Sand})`};
 
     align-items: center;
-    justify-content: center;
+    justify-content: ${(props) => (props.title === "Река" ? `none` : "center")};
 
     flex-direction: ${(props) => (props.title === "Река" ? `row` : `column`)};
+
+    transition: 0.35s ease;
 `;
 
 const Item = styled.div`
@@ -63,6 +62,41 @@ const Item = styled.div`
     margin: 20px;
 
     cursor: grab;
+
+    transform: translate(0, 0);
+    transition: 0.35s ease;
+
+    margin-left: ${(props) =>
+        props.className.includes("Река")
+            ? props.className.includes("onLeft")
+                ? "10%"
+                : "50%"
+            : ""};
+`;
+
+const MoveButton = styled.button`
+    display: flex;
+
+    position: absolute;
+    left: calc(50% - (100% / 4 - 120px) / 2);
+    top: 80vh;
+
+    width: calc(100% / 4 - 120px);
+    height: 50px;
+
+    font-family: "Pacifico", cursive;
+    font-size: 25px;
+    color: black;
+
+    background-color: #32aefc;
+
+    border: 5px solid #c98343;
+    border-radius: 10px;
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 100;
 `;
 
 const Mainframe = () => {
@@ -84,96 +118,166 @@ const Mainframe = () => {
 
     const [currentField, setCurrentField] = useState(null);
     const [currentItem, setCurrentItem] = useState(null);
+    const [currentBoatStatus, setCurrentBoatStatus] = useState("onLeft");
 
     //////////////////////////////////////////[Logic section]//////////////////////////////////////////
+    const toggleBoatStatus = () => {
+        setCurrentBoatStatus((prevStatus) =>
+            prevStatus === "onLeft" ? "onRight" : "onLeft"
+        );
+    };
 
     const dragStartHandler = (e, field, item) => {
         setTimeout(() => {
             setCurrentField(field);
             setCurrentItem(item);
-        }, 10);
+        }, 1);
     };
 
-    const dragOverHandler = (e) => {
+    const dragOverHandler = (e, field) => {
         e.preventDefault();
+        if (field.id !== currentField.id) {
+            if (
+                e.target.className.includes("Field") &&
+                !((field.id - currentField.id) % 2 === 0) &&
+                !(field.title === "Река" && field.items.length >= 1) &&
+                !(
+                    field.title === "Река" &&
+                    currentField.id === 1 &&
+                    currentBoatStatus === "onRight"
+                ) &&
+                !(
+                    field.title === "Река" &&
+                    currentField.id === 3 &&
+                    currentBoatStatus === "onLeft"
+                ) &&
+                !(
+                    currentField.id === 2 &&
+                    field.id === 1 &&
+                    currentBoatStatus === "onRight"
+                ) &&
+                !(
+                    currentField.id === 2 &&
+                    field.id === 3 &&
+                    currentBoatStatus === "onLeft"
+                )
+            ) {
+                e.target.style.boxShadow = "0 0 10px 10px white inset";
+            } else if (
+                e.target.className.includes("Field") &&
+                ((field.id - currentField.id) % 2 === 0 ||
+                    (field.title === "Река" && field.items.length >= 1) ||
+                    (field.title === "Река" &&
+                        currentField.id === 1 &&
+                        currentBoatStatus === "onRight") ||
+                    (field.title === "Река" &&
+                        currentField.id === 3 &&
+                        currentBoatStatus === "onLeft") ||
+                    (currentField.id === 2 &&
+                        field.id === 1 &&
+                        currentBoatStatus === "onRight") ||
+                    (currentField.id === 2 &&
+                        field.id === 3 &&
+                        currentBoatStatus === "onLeft"))
+            ) {
+                e.target.style.boxShadow =
+                    "0 0 20px 5px red inset, 0 0 20px 5px white inset";
+            }
+        }
     };
 
-    const dragLeaveHandler = () => {};
-
-    const dragEndHandler = () => {};
+    const dragLeaveHandler = (e) => {
+        if (e.relatedTarget) {
+            const relatedTarget = e.relatedTarget;
+            if (relatedTarget.parentElement) {
+                if (e.target.title !== relatedTarget.parentElement.title) {
+                    e.target.style.boxShadow = "none";
+                }
+            }
+        }
+    };
 
     const dropHandler = (e, field, item) => {
         e.preventDefault();
         const currentIndex = currentField.items.indexOf(currentItem);
         const dropIndex = field.items.indexOf(item);
 
-        if (field === currentField) {
-            const newFields = [...fields];
-            [newFields[currentIndex], newFields[dropIndex]] = [
-                newFields[dropIndex],
-                newFields[currentIndex],
+        if (currentField.id === field.id) {
+            const newField = [...field.items];
+            [newField[currentIndex], newField[dropIndex]] = [
+                newField[dropIndex],
+                newField[currentIndex],
             ];
-            setFields(newFields);
-            console.log(fields);
+            setFields(
+                fields.map((f) => {
+                    if (f.id === currentField.id) {
+                        return { ...f, items: newField };
+                    }
+                    return f;
+                })
+            );
         }
-
-        /*
-        if (currentIndex > dropIndex) {
-            currentField.items.splice(currentIndex, 1);
-            currentField.items.splice(dropIndex, 1);
-            field.items.splice(dropIndex, 0, currentItem);
-            field.items.splice(currentIndex, 0, item);
-
-        } else {
-            currentField.items.splice(dropIndex, 1);
-            currentField.items.splice(currentIndex, 1);
-            field.items.splice(currentIndex, 0, item);
-            field.items.splice(dropIndex, 0, currentItem);
-        }
-        */
-
-        setFields(
-            fields.map((f) => {
-                if (f.id === field.id) {
-                    return field;
-                }
-                if (f.id === currentField.id) {
-                    return currentField;
-                }
-                return f;
-            })
-        );
     };
 
-    /*
-      const dropItemHandler = (e, field) => {
-  
-          field.items.push(currentItem);
-          const currentIndex = currentField.items.indexOf(currentItem);
-          currentField.items.splice(currentIndex, 1);
-          setFields(fields.map(f => {
-              if (f.id === field.id) {
-                  return field;
-              }
-              if (f.id === currentField.id) {
-                  return currentField;
-              }
-              return f
-          }))
-  
-      } */
+    const dropItemHandler = (e, field) => {
+        e.target.style.boxShadow = "none";
+        e.target.parentElement.style.boxShadow = "none";
+        if (
+            currentField.id !== field.id &&
+            !(field.title === "Река" && field.items.length >= 1) &&
+            !((field.id - currentField.id) % 2 === 0) &&
+            !(
+                field.title === "Река" &&
+                currentField.id === 1 &&
+                currentBoatStatus === "onRight"
+            ) &&
+            !(
+                field.title === "Река" &&
+                currentField.id === 3 &&
+                currentBoatStatus === "onLeft"
+            ) &&
+            !(
+                currentField.id === 2 &&
+                field.id === 1 &&
+                currentBoatStatus === "onRight"
+            ) &&
+            !(
+                currentField.id === 2 &&
+                field.id === 3 &&
+                currentBoatStatus === "onLeft"
+            )
+        ) {
+            field.items.push(currentItem);
+            const currentIndex = currentField.items.indexOf(currentItem);
+            currentField.items.splice(currentIndex, 1);
+            setFields(
+                fields.map((f) => {
+                    return f;
+                })
+            );
+        }
+    };
 
     return (
         <>
             <Toolbar />
 
             <MainWrapper>
+                <MoveButton
+                    onClick={() => {
+                        toggleBoatStatus();
+                    }}
+                >
+                    Переправить
+                </MoveButton>
                 {fields.map((field) => (
                     <Field
-                        onDragOver={(e) => dragOverHandler(e)}
-                        /* onDrop={(e) => dropItemHandler(e, field)}*/
+                        onDragOver={(e) => dragOverHandler(e, field)}
+                        onDrop={(e) => dropItemHandler(e, field)}
+                        onDragLeave={(e) => dragLeaveHandler(e, field)}
                         title={field.title}
                         key={field.id}
+                        className={`Field, ${currentBoatStatus}`}
                     >
                         {field.items.map((item) => (
                             <Item
@@ -181,11 +285,11 @@ const Mainframe = () => {
                                 onDragStart={(e) =>
                                     dragStartHandler(e, field, item)
                                 }
-                                onDragOver={(e) => dragOverHandler(e)}
-                                onDragLeave={(e) => dragLeaveHandler(e)}
-                                onDragEnd={(e) => dragEndHandler(e)}
+                                onDragOver={(e) => dragOverHandler(e, field)}
                                 onDrop={(e) => dropHandler(e, field, item)}
                                 title={item.title}
+                                key={item.id}
+                                className={`Item, ${currentBoatStatus}, ${field.title}`}
                             ></Item>
                         ))}
                     </Field>
