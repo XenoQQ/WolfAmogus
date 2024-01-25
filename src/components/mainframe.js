@@ -1,6 +1,7 @@
-/* eslint-disable no-unused-expressions */
-import styled from "styled-components";
+///Utility modules
 import React, { useState } from "react";
+import styled from "styled-components";
+///Assets
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
 import Sheep from "../assets/amogus.png";
@@ -97,10 +98,28 @@ const MoveButton = styled.button`
     justify-content: center;
 
     z-index: 100;
+
+    cursor: pointer;
 `;
 
 const Mainframe = () => {
     //////////////////////////////////////////[States section]//////////////////////////////////////////
+
+    //////////[Mainframe state]///////////
+
+    const [mainframeState, setMainFrameState] = useState("onNewgame");
+
+    /*
+    Possible states:
+    onNewGame
+    onPlay
+    onSuccess  
+    onDefeat
+    onRules
+    onAchievementList
+    */
+
+    //////////[Game logic states]///////////
 
     const [fields, setFields] = useState([
         {
