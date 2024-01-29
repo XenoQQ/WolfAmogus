@@ -1,6 +1,12 @@
 ///Utility modules
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useRecoilState } from "recoil";
+import {
+    fieldsState,
+    currentFieldState,
+    currentItemState,
+} from "../state/atoms";
 ///Assets
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
@@ -121,22 +127,10 @@ const Mainframe = () => {
 
     //////////[Game logic states]///////////
 
-    const [fields, setFields] = useState([
-        {
-            id: 1,
-            title: "Левый берег",
-            items: [
-                { id: 1, title: "Волк" },
-                { id: 2, title: "Овца" },
-                { id: 3, title: "Капуста" },
-            ],
-        },
-        { id: 2, title: "Река", items: [] },
-        { id: 3, title: "Правый берег", items: [] },
-    ]);
+    const [fields, setFields] = useRecoilState(fieldsState);
+    const [currentField, setCurrentField] = useRecoilState(currentFieldState);
+    const [currentItem, setCurrentItem] = useRecoilState(currentItemState);
 
-    const [currentField, setCurrentField] = useState(null);
-    const [currentItem, setCurrentItem] = useState(null);
     const [currentBoatStatus, setCurrentBoatStatus] = useState("onLeft");
 
     //////////////////////////////////////////[Logic section]//////////////////////////////////////////
@@ -266,14 +260,29 @@ const Mainframe = () => {
                 currentBoatStatus === "onLeft"
             )
         ) {
-            field.items.push(currentItem);
+            
+            
+            
+            
+            /*const newFieldItems = [...field.items, currentItem];
+            console.log(newFieldItems);
+            setFields(
+                fields.map((f) => {
+                    if (f.id === field.id) {
+                        return { ...f, items: newFieldItems };
+                    }
+                    return f;
+                })
+            ); */ 
+
+            /* field.items.push(currentItem);
             const currentIndex = currentField.items.indexOf(currentItem);
             currentField.items.splice(currentIndex, 1);
             setFields(
                 fields.map((f) => {
                     return f;
                 })
-            );
+            );*/
         }
     };
 
