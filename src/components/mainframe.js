@@ -1,5 +1,5 @@
 ///Utility modules
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import {
@@ -109,6 +109,10 @@ const MoveButton = styled.button`
 `;
 
 const Mainframe = () => {
+    useEffect(() => {
+        console.log("Mainframe rendered");
+    }, []);
+
     //////////////////////////////////////////[States section]//////////////////////////////////////////
 
     //////////[Mainframe state]///////////
@@ -260,21 +264,23 @@ const Mainframe = () => {
                 currentBoatStatus === "onLeft"
             )
         ) {
-            
-            
-            
-            
-            /*const newFieldItems = [...field.items, currentItem];
+            const newFieldItems = [...field.items, currentItem];
+            const newCurrentFieldItems = [...currentField.items];
+            const currentIndex = newCurrentFieldItems.indexOf(currentItem);
+            newCurrentFieldItems.splice(currentIndex, 1);
+
             console.log(newFieldItems);
             setFields(
                 fields.map((f) => {
                     if (f.id === field.id) {
                         return { ...f, items: newFieldItems };
                     }
+                    if (f.id === currentField.id) {
+                        return { ...f, items: newCurrentFieldItems };
+                    }
                     return f;
                 })
-            ); */ 
-
+            );
             /* field.items.push(currentItem);
             const currentIndex = currentField.items.indexOf(currentItem);
             currentField.items.splice(currentIndex, 1);
@@ -285,7 +291,6 @@ const Mainframe = () => {
             );*/
         }
     };
-
     return (
         <>
             <Toolbar />
