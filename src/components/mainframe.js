@@ -1,12 +1,16 @@
 ///Utility modules
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import {
     fieldsState,
     currentFieldState,
     currentItemState,
+    currentMainframeState,
 } from "../state/atoms";
+///Components
+import Toolbar from "./toolbar";
+import Popups from "./popups";
 ///Assets
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
@@ -14,7 +18,6 @@ import Sheep from "../assets/amogus.png";
 import Wolf from "../assets/auf.png";
 import Letucce from "../assets/lettuce.png";
 import Ship from "../assets/ship.png";
-import Toolbar from "./toolbar";
 
 //////////////////////////////////////////[Styles section]//////////////////////////////////////////
 
@@ -43,8 +46,8 @@ const Field = styled.div`
                 : `none`},
         ${(props) =>
             props.title === "Река"
-                ? `center/120px url(${Water})`
-                : `center/120px url(${Sand})`};
+                ? `center/15% url(${Water})`
+                : `center/32% url(${Sand})`};
 
     align-items: center;
     justify-content: ${(props) => (props.title === "Река" ? `none` : "center")};
@@ -55,18 +58,19 @@ const Field = styled.div`
 `;
 
 const Item = styled.div`
-    width: 150px;
-    height: 150px;
+    width: ${(props) =>
+        props.className.includes("Река") ? '19%' : '38%'};
+    aspect-ratio: 1/1;
 
     background: ${(props) =>
         props.title === "Волк"
-            ? `no-repeat center/100px url(${Wolf})`
+            ? `no-repeat center url(${Wolf})`
             : props.title === "Овца"
-            ? `no-repeat center/100px url(${Sheep})`
-            : `no-repeat center/100px url(${Letucce})`};
+            ? `no-repeat center url(${Sheep})`
+            : `no-repeat center url(${Letucce})`};
     background-size: 100%;
 
-    margin: 20px;
+    margin: 5%;
 
     cursor: grab;
 
@@ -85,25 +89,23 @@ const MoveButton = styled.button`
     display: flex;
 
     position: absolute;
-    left: calc(50% - (100% / 4 - 120px) / 2);
+    left: calc(50% - (100% / 4 - 6.25%) / 2);
     top: 80vh;
 
-    width: calc(100% / 4 - 120px);
-    height: 50px;
+    width: calc(100% / 4 - 6.25%);
+    height: 7vh;
 
     font-family: "Pacifico", cursive;
-    font-size: 25px;
+    font-size: 3.5vh;
     color: black;
 
     background-color: #32aefc;
 
-    border: 5px solid #c98343;
+    border: 5  solid #c98343;
     border-radius: 10px;
 
     align-items: center;
     justify-content: center;
-
-    z-index: 100;
 
     cursor: pointer;
 `;
@@ -117,7 +119,9 @@ const Mainframe = () => {
 
     //////////[Mainframe state]///////////
 
-    const [mainframeState, setMainFrameState] = useState("onNewgame");
+    const [mainframeState, setMainFrameState] = useRecoilState(
+        currentMainframeState
+    );
 
     /*
     Possible states:
@@ -138,6 +142,7 @@ const Mainframe = () => {
     const [currentBoatStatus, setCurrentBoatStatus] = useState("onLeft");
 
     //////////////////////////////////////////[Logic section]//////////////////////////////////////////
+
     const toggleBoatStatus = () => {
         setCurrentBoatStatus((prevStatus) =>
             prevStatus === "onLeft" ? "onRight" : "onLeft"
@@ -281,20 +286,12 @@ const Mainframe = () => {
                     return f;
                 })
             );
-            /* field.items.push(currentItem);
-            const currentIndex = currentField.items.indexOf(currentItem);
-            currentField.items.splice(currentIndex, 1);
-            setFields(
-                fields.map((f) => {
-                    return f;
-                })
-            );*/
         }
     };
     return (
         <>
             <Toolbar />
-
+            <Popups />
             <MainWrapper>
                 <MoveButton
                     onClick={() => {

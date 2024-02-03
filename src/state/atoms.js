@@ -26,3 +26,8 @@ export const currentFieldState = atom({
     key: "currentFieldState",
     default: null,
 });
+
+export const currentMainframeState = atom({
+    key: "currentMainframeState",
+    default: "onNewGame",
+});
