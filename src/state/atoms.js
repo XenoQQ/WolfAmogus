@@ -31,3 +31,8 @@ export const currentMainframeState = atom({
     key: "currentMainframeState",
     default: "onNewGame",
 });
+
+export const currentBoatStatus = atom({
+    key: "currentBoatStatus",
+    default: "onLeft",
+});

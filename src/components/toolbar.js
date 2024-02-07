@@ -2,6 +2,10 @@ import styled from "styled-components";
 import Ach from "../assets/ach.png";
 import Question from "../assets/question.png";
 import Reset from "../assets/reset.png";
+import { useSetRecoilState } from "recoil";
+import { currentMainframeState } from "../state/atoms";
+
+//////////////////////////////////////////[Styles section]//////////////////////////////////////////
 
 const Bar = styled.div`
     position: absolute;
@@ -10,6 +14,7 @@ const Bar = styled.div`
 
     width: 100%;
     height: 8vh;
+    margin: calc(2.5% - 0.35vw) 0 0 0;
 
     background: none;
 
@@ -20,19 +25,19 @@ const Bar = styled.div`
 const GameTitle = styled.div`
     display: flex;
 
-    width: calc(100% / 4 - 80px);
-    height: 50px;
+    width: calc(100% / 4 - 5%);
+    height: 7vh;
 
-    margin: 40px 0 0 40px;
+    margin: 0 0 0 calc(2.5% - 0.35vw);
 
     font-family: "Pacifico", cursive;
-    font-size: 25px;
+    font-size: 3.4vh;
     color: black;
 
     background-color: #32aefc;
 
-    border: 5px solid #c98343;
-    border-radius: 10px;
+    border: 0.35vw solid #c98343;
+    border-radius: 0.7vw;
 
     align-items: center;
     justify-content: center;
@@ -43,74 +48,53 @@ const GameTitle = styled.div`
 const ButtonSection = styled.div`
     display: flex;
 
-    width: calc(100% / 4 - 80px);
-    height: 60px;
+    width: calc(100% / 4 - 5%);
+    height: 8.4vh;
 
-    margin: 40px 40px 0 0;
+    margin: 0 calc(2.5% - 0.35vw) 0 0;
 
     z-index: 100;
+
+    justify-content: space-between;
 `;
 
-const AchButton = styled.button`
-    width: 60px;
-    height: 60px;
+const Button = styled.button`
+    height: 8.4vh;
+    aspect-ratio: 1/1;
 
-    background: no-repeat center/30px url(${Ach}), #c98343;
-
-    margin: 0 60px 0 0;
+    background: ${(props) =>
+        props.className.includes("achievements")
+            ? `no-repeat center/50% url(${Ach}), #c98343`
+            : props.className.includes("restart")
+            ? `no-repeat center/50% url(${Reset}), #c98343`
+            : `no-repeat center/70% url(${Question}), #c98343`};
 
     border-style: none;
 
-    border-radius: 10px;
+    border-radius: 1vh;
 
     cursor: pointer;
 `;
 
-const ResButton = styled.button`
-    width: 60px;
-    height: 60px;
-
-    background: no-repeat center/30px url(${Reset}), #c98343;
-
-    margin: 0 60px 0 0;
-
-    border-style: none;
-
-    border-radius: 10px;
-
-    cursor: pointer;
-`;
-
-const RulButton = styled.button`
-    width: 60px;
-    height: 60px;
-
-    background: no-repeat center/40px url(${Question}), #c98343;
-
-    border-style: none;
-
-    border-radius: 10px;
-
-    cursor: pointer;
-
-    
-`;
-
-const Toolbar = () => {
+const Toolbar = ({ handleReset }) => {
     //////////////////////////////////////////[States section]//////////////////////////////////////////
+
+    const setMainframeState = useSetRecoilState(currentMainframeState);
 
     //////////////////////////////////////////[Logic section]//////////////////////////////////////////
 
-    //////////////////////////////////////////[Styles section]//////////////////////////////////////////
+    const handleRules = () => {
+        setMainframeState("onRules");
+    };
 
     return (
         <>
             <Bar>
                 <GameTitle>Переправляющаяся братва</GameTitle>
                 <ButtonSection>
-                    <AchButton />
-                    <ResButton />
-                    <RulButton />
+                    <Button className="achievements" />
+                    <Button className="restart" onClick={handleReset} />
+                    <Button className="rules" onClick={handleRules} />
                 </ButtonSection>
             </Bar>
         </>

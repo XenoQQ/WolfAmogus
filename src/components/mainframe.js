@@ -1,5 +1,5 @@
 ///Utility modules
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import {
@@ -7,6 +7,7 @@ import {
     currentFieldState,
     currentItemState,
     currentMainframeState,
+    currentBoatStatus,
 } from "../state/atoms";
 ///Components
 import Toolbar from "./toolbar";
@@ -58,8 +59,7 @@ const Field = styled.div`
 `;
 
 const Item = styled.div`
-    width: ${(props) =>
-        props.className.includes("Река") ? '19%' : '38%'};
+    width: ${(props) => (props.className.includes("Река") ? "19%" : "38%")};
     aspect-ratio: 1/1;
 
     background: ${(props) =>
@@ -96,13 +96,13 @@ const MoveButton = styled.button`
     height: 7vh;
 
     font-family: "Pacifico", cursive;
-    font-size: 3.5vh;
+    font-size: 3.4vh;
     color: black;
 
     background-color: #32aefc;
 
-    border: 5  solid #c98343;
-    border-radius: 10px;
+    border: 0.35vw solid #c98343;
+    border-radius: 0.7vw;
 
     align-items: center;
     justify-content: center;
@@ -111,17 +111,7 @@ const MoveButton = styled.button`
 `;
 
 const Mainframe = () => {
-    useEffect(() => {
-        console.log("Mainframe rendered");
-    }, []);
-
     //////////////////////////////////////////[States section]//////////////////////////////////////////
-
-    //////////[Mainframe state]///////////
-
-    const [mainframeState, setMainFrameState] = useRecoilState(
-        currentMainframeState
-    );
 
     /*
     Possible states:
@@ -133,18 +123,17 @@ const Mainframe = () => {
     onAchievementList
     */
 
-    //////////[Game logic states]///////////
+    const [mainframeState, setMainFrameState] = useRecoilState(
+        currentMainframeState
+    );
 
     const [fields, setFields] = useRecoilState(fieldsState);
     const [currentField, setCurrentField] = useRecoilState(currentFieldState);
     const [currentItem, setCurrentItem] = useRecoilState(currentItemState);
-
-    const [currentBoatStatus, setCurrentBoatStatus] = useState("onLeft");
-
-    //////////////////////////////////////////[Logic section]//////////////////////////////////////////
+    const [boatStatus, setBoatStatus] = useRecoilState(currentBoatStatus);
 
     const toggleBoatStatus = () => {
-        setCurrentBoatStatus((prevStatus) =>
+        setBoatStatus((prevStatus) =>
             prevStatus === "onLeft" ? "onRight" : "onLeft"
         );
     };
@@ -166,44 +155,44 @@ const Mainframe = () => {
                 !(
                     field.title === "Река" &&
                     currentField.id === 1 &&
-                    currentBoatStatus === "onRight"
+                    boatStatus === "onRight"
                 ) &&
                 !(
                     field.title === "Река" &&
                     currentField.id === 3 &&
-                    currentBoatStatus === "onLeft"
+                    boatStatus === "onLeft"
                 ) &&
                 !(
                     currentField.id === 2 &&
                     field.id === 1 &&
-                    currentBoatStatus === "onRight"
+                    boatStatus === "onRight"
                 ) &&
                 !(
                     currentField.id === 2 &&
                     field.id === 3 &&
-                    currentBoatStatus === "onLeft"
+                    boatStatus === "onLeft"
                 )
             ) {
-                e.target.style.boxShadow = "0 0 10px 10px white inset";
+                e.target.style.boxShadow = "0 0 0.7vw 0.7vw white inset";
             } else if (
                 e.target.className.includes("Field") &&
                 ((field.id - currentField.id) % 2 === 0 ||
                     (field.title === "Река" && field.items.length >= 1) ||
                     (field.title === "Река" &&
                         currentField.id === 1 &&
-                        currentBoatStatus === "onRight") ||
+                        boatStatus === "onRight") ||
                     (field.title === "Река" &&
                         currentField.id === 3 &&
-                        currentBoatStatus === "onLeft") ||
+                        boatStatus === "onLeft") ||
                     (currentField.id === 2 &&
                         field.id === 1 &&
-                        currentBoatStatus === "onRight") ||
+                        boatStatus === "onRight") ||
                     (currentField.id === 2 &&
                         field.id === 3 &&
-                        currentBoatStatus === "onLeft"))
+                        boatStatus === "onLeft"))
             ) {
                 e.target.style.boxShadow =
-                    "0 0 20px 5px red inset, 0 0 20px 5px white inset";
+                    "0 0 1.4vw 0.35vw red inset, 0 0 1.4vw 0.35vw white inset";
             }
         }
     };
@@ -251,22 +240,22 @@ const Mainframe = () => {
             !(
                 field.title === "Река" &&
                 currentField.id === 1 &&
-                currentBoatStatus === "onRight"
+                boatStatus === "onRight"
             ) &&
             !(
                 field.title === "Река" &&
                 currentField.id === 3 &&
-                currentBoatStatus === "onLeft"
+                boatStatus === "onLeft"
             ) &&
             !(
                 currentField.id === 2 &&
                 field.id === 1 &&
-                currentBoatStatus === "onRight"
+                boatStatus === "onRight"
             ) &&
             !(
                 currentField.id === 2 &&
                 field.id === 3 &&
-                currentBoatStatus === "onLeft"
+                boatStatus === "onLeft"
             )
         ) {
             const newFieldItems = [...field.items, currentItem];
@@ -288,10 +277,78 @@ const Mainframe = () => {
             );
         }
     };
+
+    const handleReset = () => {
+        setFields([
+            {
+                id: 1,
+                title: "Левый берег",
+                items: [
+                    { id: 1, title: "Волк" },
+                    { id: 2, title: "Овца" },
+                    { id: 3, title: "Капуста" },
+                ],
+            },
+            { id: 2, title: "Река", items: [] },
+            { id: 3, title: "Правый берег", items: [] },
+        ]);
+        setBoatStatus("onLeft");
+    };
+
+    const statusChecker = () => {
+        const westCoast = fields.find(
+            (field) => field.title === "Левый берег"
+        )?.items;
+        const eastCoast = fields.find(
+            (field) => field.title === "Правый берег"
+        )?.items;
+
+        if (
+            westCoast.length === 2 &&
+            boatStatus === "onRight" &&
+            ((westCoast.some((item) => item.title === "Волк") &&
+                westCoast.some((item) => item.title === "Овца")) ||
+                (westCoast.some((item) => item.title === "Овца") &&
+                    westCoast.some((item) => item.title === "Капуста")))
+        ) {
+            setTimeout(() => {
+                setMainFrameState("onDefeat");
+                console.log("поражение");
+            }, 350);
+        }
+
+        if (
+            eastCoast.length === 2 &&
+            boatStatus === "onLeft" &&
+            ((eastCoast.some((item) => item.title === "Волк") &&
+                eastCoast.some((item) => item.title === "Овца")) ||
+                (eastCoast.some((item) => item.title === "Овца") &&
+                    eastCoast.some((item) => item.title === "Капуста")))
+        ) {
+            setTimeout(() => {
+                setMainFrameState("onDefeat");
+                console.log("поражение");
+            }, 350);
+        }
+
+        if (eastCoast.length === 3) {
+            setTimeout(() => {
+                setMainFrameState("onSuccess");
+                console.log("победа!");
+            }, 350);
+        }
+    };
+
+    useEffect(() => {
+        statusChecker();
+    }, [fields, boatStatus]);
+
+    //////////////////////////////////////////[JSX section]//////////////////////////////////////////
+
     return (
         <>
-            <Toolbar />
-            <Popups />
+            <Toolbar handleReset={handleReset} />
+            <Popups handleReset={handleReset} />
             <MainWrapper>
                 <MoveButton
                     onClick={() => {
@@ -307,7 +364,7 @@ const Mainframe = () => {
                         onDragLeave={(e) => dragLeaveHandler(e, field)}
                         title={field.title}
                         key={field.id}
-                        className={`Field, ${currentBoatStatus}`}
+                        className={`Field, ${boatStatus}`}
                     >
                         {field.items.map((item) => (
                             <Item
@@ -319,7 +376,7 @@ const Mainframe = () => {
                                 onDrop={(e) => dropHandler(e, field, item)}
                                 title={item.title}
                                 key={item.id}
-                                className={`Item, ${currentBoatStatus}, ${field.title}`}
+                                className={`Item, ${boatStatus}, ${field.title}`}
                             ></Item>
                         ))}
                     </Field>
