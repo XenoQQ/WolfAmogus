@@ -1,17 +1,19 @@
 ///Utility modules
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import {
     fieldsState,
     currentFieldState,
     currentItemState,
     currentMainframeState,
     currentBoatStatus,
+    currentTimerIsRunning,
 } from "../state/atoms";
 ///Components
 import Toolbar from "./toolbar";
 import Popups from "./popups";
+import Achievements from "./achievements";
 ///Assets
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
@@ -113,24 +115,13 @@ const MoveButton = styled.button`
 const Mainframe = () => {
     //////////////////////////////////////////[States section]//////////////////////////////////////////
 
-    /*
-    Possible states:
-    onNewGame
-    onPlay
-    onSuccess  
-    onDefeat
-    onRules
-    onAchievementList
-    */
-
-    const [mainframeState, setMainFrameState] = useRecoilState(
-        currentMainframeState
-    );
-
     const [fields, setFields] = useRecoilState(fieldsState);
     const [currentField, setCurrentField] = useRecoilState(currentFieldState);
     const [currentItem, setCurrentItem] = useRecoilState(currentItemState);
     const [boatStatus, setBoatStatus] = useRecoilState(currentBoatStatus);
+
+    const setMainFrameState = useSetRecoilState(currentMainframeState);
+    const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
 
     const toggleBoatStatus = () => {
         setBoatStatus((prevStatus) =>
@@ -315,6 +306,7 @@ const Mainframe = () => {
                 setMainFrameState("onDefeat");
                 console.log("поражение");
             }, 350);
+            setTimerIsRunning(false);
         }
 
         if (
@@ -329,6 +321,7 @@ const Mainframe = () => {
                 setMainFrameState("onDefeat");
                 console.log("поражение");
             }, 350);
+            setTimerIsRunning(false);
         }
 
         if (eastCoast.length === 3) {
@@ -336,6 +329,7 @@ const Mainframe = () => {
                 setMainFrameState("onSuccess");
                 console.log("победа!");
             }, 350);
+            setTimerIsRunning(false);
         }
     };
 
@@ -349,6 +343,7 @@ const Mainframe = () => {
         <>
             <Toolbar handleReset={handleReset} />
             <Popups handleReset={handleReset} />
+            <Achievements />
             <MainWrapper>
                 <MoveButton
                     onClick={() => {

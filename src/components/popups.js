@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useRecoilState } from "recoil";
-import { currentMainframeState } from "../state/atoms";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { currentMainframeState, currentTimerIsRunning, currentTimer } from "../state/atoms";
 import styled from "styled-components";
 
 const PopupZone = styled.div`
@@ -82,16 +82,11 @@ const Popups = ({ handleReset }) => {
     const [mainframeState, setMainframeState] = useRecoilState(
         currentMainframeState
     );
+    const [timerIsRunning, setTimerIsRunning] = useRecoilState(
+        currentTimerIsRunning
+    );
 
-    /*
-    Possible states:
-    onNewGame
-    onPlay
-    onSuccess  
-    onDefeat
-    onRules
-    onAchievementList
-    */
+    const setTimer = useSetRecoilState(currentTimer);
 
     useEffect(() => {
         let currentText =
@@ -123,7 +118,10 @@ const Popups = ({ handleReset }) => {
         if (mainframeState === "onDefeat" || mainframeState === "onSuccess") {
             setMainframeState("onPlay");
             handleReset();
+            setTimer(0);
         }
+
+        setTimerIsRunning(true);
     };
 
     return (
