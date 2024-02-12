@@ -31,6 +31,8 @@ const Popup = styled.div`
     font-family: "Pacifico", cursive;
     font-size: 2.5vh;
 
+    text-align: center;
+
     background-color: #32aefc;
 
     border: 0.35vw solid #c98343;

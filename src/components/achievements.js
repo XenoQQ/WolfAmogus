@@ -1,6 +1,10 @@
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { currentMainframeState, currentTimerIsRunning } from "../state/atoms";
+import {
+    currentMainframeState,
+    currentTimerIsRunning,
+    currentAchievementList,
+} from "../state/atoms";
 
 const AchZone = styled.div`
     display: flex;
@@ -23,7 +27,7 @@ const AchPopup = styled.div`
     top: 16vh;
 
     width: calc(60% - 0.7vw);
-    height: 60vh;
+    height: 55vh;
 
     padding: 2vw;
 
@@ -41,19 +45,81 @@ const AchPopup = styled.div`
     align-items: center;
 `;
 
-const AchTitle = styled.div`
+const AchPopupTitle = styled.div`
     display: flex;
 
     width: calc(100% / 4);
     height: 7vh;
     font-family: "Pacifico", cursive;
-    font-size: 5vh;
+    font-size: 4vh;
     color: black;
 
     background-color: #32aefc;
 
     align-items: center;
     justify-content: center;
+`;
+
+const AchList = styled.div`
+    display: flex;
+
+    width: 90%;
+    height: 35vh;
+
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const Ach = styled.div`
+    display: flex;
+
+    width: 30%;
+    height: 14vh;
+
+    background: #c98343;
+
+    border: 0.25vw solid #c98343;
+    border-radius: 0.7vw;
+
+    flex-flow: column;
+    align-items: center;
+    justify-content: space-between;
+`;
+const AchTitle = styled.div`
+    display: flex;
+
+    width: 100%;
+    height: 8vh;
+
+    font-size: 2vh;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    z-index: 1000;
+`;
+
+const AchText = styled.div`
+    display: flex;
+
+    width: 100%;
+    height: 100%;
+
+    font-size: 2vh;
+
+    background: ${(props) =>
+        props.className.includes("false") ? `white` : `#c98343`};
+
+    border-bottom-left-radius: 0.7vw;
+    border-bottom-right-radius: 0.7vw;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
 `;
 
 const AchButton = styled.div`
@@ -80,6 +146,9 @@ const Achievements = () => {
     const [mainframeState, setMainframeState] = useRecoilState(
         currentMainframeState
     );
+    const [achievementList, setAchievementList] = useRecoilState(
+        currentAchievementList
+    );
     const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
 
     const handleContinue = () => {
@@ -98,7 +167,17 @@ const Achievements = () => {
                 }}
             >
                 <AchPopup>
-                    <AchTitle>Достижения</AchTitle>
+                    <AchPopupTitle>Достижения</AchPopupTitle>
+                    <AchList>
+                        {achievementList.map((achievement) => (
+                            <Ach key={achievement.id}>
+                                <AchTitle>{achievement.title}</AchTitle>
+                                <AchText className={`${achievement.isDone}`}>
+                                    {achievement.text}
+                                </AchText>
+                            </Ach>
+                        ))}
+                    </AchList>
                     <AchButton onClick={handleContinue}>Продолжить</AchButton>
                 </AchPopup>
             </AchZone>

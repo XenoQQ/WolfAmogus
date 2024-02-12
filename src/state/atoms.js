@@ -52,7 +52,7 @@ export const currentTimerResults = atom({
     default: [],
 });
 
-export const currentAchievementStatus = atom({
+export const currentAchievementList = atom({
     key: "currentAchievementStatus",
     default: [
         {
