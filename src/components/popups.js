@@ -81,13 +81,9 @@ const PopupButton = styled.div`
 
 const Popups = ({ handleReset }) => {
     const [currentPopupText, setCurrentPopupText] = useState("");
-    const [mainframeState, setMainframeState] = useRecoilState(
-        currentMainframeState
-    );
-    const [timerIsRunning, setTimerIsRunning] = useRecoilState(
-        currentTimerIsRunning
-    );
+    const [mainframeState, setMainframeState] = useRecoilState(currentMainframeState);
 
+    const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
     const setTimer = useSetRecoilState(currentTimer);
 
     useEffect(() => {
@@ -129,19 +125,13 @@ const Popups = ({ handleReset }) => {
     return (
         <PopupZone
             style={{
-                display:
-                    mainframeState === "onPlay" ||
-                    mainframeState === "onAchievementList"
-                        ? "none"
-                        : "flex",
+                display: mainframeState === "onPlay" || mainframeState === "onAchievementList" ? "none" : "flex",
             }}
         >
             <Popup>
                 <PopupTitle>{currentPopupText[0]}</PopupTitle>
                 {currentPopupText[1]}
-                <PopupButton onClick={handlePopupButtonClick}>
-                    {currentPopupText[2]}
-                </PopupButton>
+                <PopupButton onClick={handlePopupButtonClick}>{currentPopupText[2]}</PopupButton>
             </Popup>
         </PopupZone>
     );

@@ -17,16 +17,6 @@ export const fieldsState = atom({
     ],
 });
 
-export const currentItemState = atom({
-    key: "currentItemState",
-    default: null,
-});
-
-export const currentFieldState = atom({
-    key: "currentFieldState",
-    default: null,
-});
-
 export const currentMainframeState = atom({
     key: "currentMainframeState",
     default: "onNewGame",

@@ -1,7 +1,6 @@
-///Utility modules
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 import {
     fieldsState,
     currentFieldState,
@@ -9,6 +8,8 @@ import {
     currentMainframeState,
     currentBoatStatus,
     currentTimerIsRunning,
+    currentTimerResults,
+    currentTimer,
 } from "../state/atoms";
 ///Components
 import Toolbar from "./toolbar";
@@ -34,23 +35,13 @@ const MainWrapper = styled.div`
 const Field = styled.div`
     display: flex;
 
-    width: ${(props) =>
-        props.title === "Река" ? "calc(100%/2)" : "calc(100%/4)"};
+    width: ${(props) => (props.title === "Река" ? "calc(100%/2)" : "calc(100%/4)")};
 
     height: 100%;
 
     background: ${(props) =>
-            props.title === "Река"
-                ? `no-repeat ${
-                      props.className.includes("onLeft")
-                          ? `left/60%`
-                          : `right/60%`
-                  }  url(${Ship})`
-                : `none`},
-        ${(props) =>
-            props.title === "Река"
-                ? `center/15% url(${Water})`
-                : `center/32% url(${Sand})`};
+            props.title === "Река" ? `no-repeat ${props.className.includes("onLeft") ? `left/60%` : `right/60%`}  url(${Ship})` : `none`},
+        ${(props) => (props.title === "Река" ? `center/15% url(${Water})` : `center/32% url(${Sand})`)};
 
     align-items: center;
     justify-content: ${(props) => (props.title === "Река" ? `none` : "center")};
@@ -79,12 +70,7 @@ const Item = styled.div`
     transform: translate(0, 0);
     transition: 0.35s ease;
 
-    margin-left: ${(props) =>
-        props.className.includes("Река")
-            ? props.className.includes("onLeft")
-                ? "10%"
-                : "50%"
-            : ""};
+    margin-left: ${(props) => (props.className.includes("Река") ? (props.className.includes("onLeft") ? "10%" : "50%") : "")};
 `;
 
 const MoveButton = styled.button`
@@ -113,20 +99,25 @@ const MoveButton = styled.button`
 `;
 
 const Mainframe = () => {
-    //////////////////////////////////////////[States section]//////////////////////////////////////////
+    //////////////// Refactored code
 
     const [fields, setFields] = useRecoilState(fieldsState);
-    const [currentField, setCurrentField] = useRecoilState(currentFieldState);
-    const [currentItem, setCurrentItem] = useRecoilState(currentItemState);
+
+    const [currentField, setCurrentField] = useState(null);
+    const [currentItem, setCurrentItem] = useState(null);
+
+    //////////////// Old code
+
     const [boatStatus, setBoatStatus] = useRecoilState(currentBoatStatus);
 
     const setMainFrameState = useSetRecoilState(currentMainframeState);
     const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
+    const [timerResults, setTimerResults] = useRecoilState(currentTimerResults);
+
+    const timer = useRecoilValue(currentTimer);
 
     const toggleBoatStatus = () => {
-        setBoatStatus((prevStatus) =>
-            prevStatus === "onLeft" ? "onRight" : "onLeft"
-        );
+        setBoatStatus((prevStatus) => (prevStatus === "onLeft" ? "onRight" : "onLeft"));
     };
 
     const dragStartHandler = (e, field, item) => {
@@ -143,47 +134,22 @@ const Mainframe = () => {
                 e.target.className.includes("Field") &&
                 !((field.id - currentField.id) % 2 === 0) &&
                 !(field.title === "Река" && field.items.length >= 1) &&
-                !(
-                    field.title === "Река" &&
-                    currentField.id === 1 &&
-                    boatStatus === "onRight"
-                ) &&
-                !(
-                    field.title === "Река" &&
-                    currentField.id === 3 &&
-                    boatStatus === "onLeft"
-                ) &&
-                !(
-                    currentField.id === 2 &&
-                    field.id === 1 &&
-                    boatStatus === "onRight"
-                ) &&
-                !(
-                    currentField.id === 2 &&
-                    field.id === 3 &&
-                    boatStatus === "onLeft"
-                )
+                !(field.title === "Река" && currentField.id === 1 && boatStatus === "onRight") &&
+                !(field.title === "Река" && currentField.id === 3 && boatStatus === "onLeft") &&
+                !(currentField.id === 2 && field.id === 1 && boatStatus === "onRight") &&
+                !(currentField.id === 2 && field.id === 3 && boatStatus === "onLeft")
             ) {
                 e.target.style.boxShadow = "0 0 0.7vw 0.7vw white inset";
             } else if (
                 e.target.className.includes("Field") &&
                 ((field.id - currentField.id) % 2 === 0 ||
                     (field.title === "Река" && field.items.length >= 1) ||
-                    (field.title === "Река" &&
-                        currentField.id === 1 &&
-                        boatStatus === "onRight") ||
-                    (field.title === "Река" &&
-                        currentField.id === 3 &&
-                        boatStatus === "onLeft") ||
-                    (currentField.id === 2 &&
-                        field.id === 1 &&
-                        boatStatus === "onRight") ||
-                    (currentField.id === 2 &&
-                        field.id === 3 &&
-                        boatStatus === "onLeft"))
+                    (field.title === "Река" && currentField.id === 1 && boatStatus === "onRight") ||
+                    (field.title === "Река" && currentField.id === 3 && boatStatus === "onLeft") ||
+                    (currentField.id === 2 && field.id === 1 && boatStatus === "onRight") ||
+                    (currentField.id === 2 && field.id === 3 && boatStatus === "onLeft"))
             ) {
-                e.target.style.boxShadow =
-                    "0 0 1.4vw 0.35vw red inset, 0 0 1.4vw 0.35vw white inset";
+                e.target.style.boxShadow = "0 0 1.4vw 0.35vw red inset, 0 0 1.4vw 0.35vw white inset";
             }
         }
     };
@@ -206,10 +172,7 @@ const Mainframe = () => {
 
         if (currentField.id === field.id) {
             const newField = [...field.items];
-            [newField[currentIndex], newField[dropIndex]] = [
-                newField[dropIndex],
-                newField[currentIndex],
-            ];
+            [newField[currentIndex], newField[dropIndex]] = [newField[dropIndex], newField[currentIndex]];
             setFields(
                 fields.map((f) => {
                     if (f.id === currentField.id) {
@@ -228,33 +191,16 @@ const Mainframe = () => {
             currentField.id !== field.id &&
             !(field.title === "Река" && field.items.length >= 1) &&
             !((field.id - currentField.id) % 2 === 0) &&
-            !(
-                field.title === "Река" &&
-                currentField.id === 1 &&
-                boatStatus === "onRight"
-            ) &&
-            !(
-                field.title === "Река" &&
-                currentField.id === 3 &&
-                boatStatus === "onLeft"
-            ) &&
-            !(
-                currentField.id === 2 &&
-                field.id === 1 &&
-                boatStatus === "onRight"
-            ) &&
-            !(
-                currentField.id === 2 &&
-                field.id === 3 &&
-                boatStatus === "onLeft"
-            )
+            !(field.title === "Река" && currentField.id === 1 && boatStatus === "onRight") &&
+            !(field.title === "Река" && currentField.id === 3 && boatStatus === "onLeft") &&
+            !(currentField.id === 2 && field.id === 1 && boatStatus === "onRight") &&
+            !(currentField.id === 2 && field.id === 3 && boatStatus === "onLeft")
         ) {
             const newFieldItems = [...field.items, currentItem];
             const newCurrentFieldItems = [...currentField.items];
             const currentIndex = newCurrentFieldItems.indexOf(currentItem);
             newCurrentFieldItems.splice(currentIndex, 1);
 
-            console.log(newFieldItems);
             setFields(
                 fields.map((f) => {
                     if (f.id === field.id) {
@@ -287,39 +233,28 @@ const Mainframe = () => {
     };
 
     const statusChecker = () => {
-        const westCoast = fields.find(
-            (field) => field.title === "Левый берег"
-        )?.items;
-        const eastCoast = fields.find(
-            (field) => field.title === "Правый берег"
-        )?.items;
+        const westCoast = fields.find((field) => field.title === "Левый берег")?.items;
+        const eastCoast = fields.find((field) => field.title === "Правый берег")?.items;
 
         if (
             westCoast.length === 2 &&
             boatStatus === "onRight" &&
-            ((westCoast.some((item) => item.title === "Волк") &&
-                westCoast.some((item) => item.title === "Овца")) ||
-                (westCoast.some((item) => item.title === "Овца") &&
-                    westCoast.some((item) => item.title === "Капуста")))
+            ((westCoast.some((item) => item.title === "Волк") && westCoast.some((item) => item.title === "Овца")) ||
+                (westCoast.some((item) => item.title === "Овца") && westCoast.some((item) => item.title === "Капуста")))
         ) {
             setTimeout(() => {
                 setMainFrameState("onDefeat");
-                console.log("поражение");
             }, 350);
             setTimerIsRunning(false);
         }
-
         if (
             eastCoast.length === 2 &&
             boatStatus === "onLeft" &&
-            ((eastCoast.some((item) => item.title === "Волк") &&
-                eastCoast.some((item) => item.title === "Овца")) ||
-                (eastCoast.some((item) => item.title === "Овца") &&
-                    eastCoast.some((item) => item.title === "Капуста")))
+            ((eastCoast.some((item) => item.title === "Волк") && eastCoast.some((item) => item.title === "Овца")) ||
+                (eastCoast.some((item) => item.title === "Овца") && eastCoast.some((item) => item.title === "Капуста")))
         ) {
             setTimeout(() => {
                 setMainFrameState("onDefeat");
-                console.log("поражение");
             }, 350);
             setTimerIsRunning(false);
         }
@@ -327,9 +262,10 @@ const Mainframe = () => {
         if (eastCoast.length === 3) {
             setTimeout(() => {
                 setMainFrameState("onSuccess");
-                console.log("победа!");
             }, 350);
             setTimerIsRunning(false);
+            setTimerResults([...timerResults, timer]);
+            console.log(timerResults);
         }
     };
 
@@ -364,9 +300,7 @@ const Mainframe = () => {
                         {field.items.map((item) => (
                             <Item
                                 draggable={true}
-                                onDragStart={(e) =>
-                                    dragStartHandler(e, field, item)
-                                }
+                                onDragStart={(e) => dragStartHandler(e, field, item)}
                                 onDragOver={(e) => dragOverHandler(e, field)}
                                 onDrop={(e) => dropHandler(e, field, item)}
                                 title={item.title}

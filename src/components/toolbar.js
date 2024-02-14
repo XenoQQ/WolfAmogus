@@ -3,11 +3,7 @@ import Ach from "../assets/ach.png";
 import Question from "../assets/question.png";
 import Reset from "../assets/reset.png";
 import { useSetRecoilState, useRecoilState } from "recoil";
-import {
-    currentMainframeState,
-    currentTimer,
-    currentTimerIsRunning,
-} from "../state/atoms";
+import { currentMainframeState, currentTimer, currentTimerIsRunning } from "../state/atoms";
 import { useEffect } from "react";
 
 //////////////////////////////////////////[Styles section]//////////////////////////////////////////
@@ -106,9 +102,7 @@ const Toolbar = ({ handleReset }) => {
     const setMainframeState = useSetRecoilState(currentMainframeState);
 
     const [timer, setTimer] = useRecoilState(currentTimer);
-    const [timerIsRunning, setTimerIsRunning] = useRecoilState(
-        currentTimerIsRunning
-    );
+    const [timerIsRunning, setTimerIsRunning] = useRecoilState(currentTimerIsRunning);
 
     //////////////////////////////////////////[Logic section]//////////////////////////////////////////
 
@@ -138,7 +132,7 @@ const Toolbar = ({ handleReset }) => {
         return () => {
             clearInterval(interval);
         };
-    }, [timerIsRunning]);
+    }, [setTimer, timerIsRunning]);
 
     const formatTime = (time) => {
         const minutes = Math.floor(time / 60);

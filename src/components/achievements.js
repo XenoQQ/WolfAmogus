@@ -1,10 +1,6 @@
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import {
-    currentMainframeState,
-    currentTimerIsRunning,
-    currentAchievementList,
-} from "../state/atoms";
+import { currentMainframeState, currentTimerIsRunning, currentAchievementList } from "../state/atoms";
 
 const AchZone = styled.div`
     display: flex;
@@ -79,7 +75,7 @@ const Ach = styled.div`
 
     background: #c98343;
 
-    border: 0.25vw solid #c98343;
+    border: 0.35vw solid #c98343;
     border-radius: 0.7vw;
 
     flex-flow: column;
@@ -110,11 +106,10 @@ const AchText = styled.div`
 
     font-size: 2vh;
 
-    background: ${(props) =>
-        props.className.includes("false") ? `white` : `#c98343`};
+    background: ${(props) => (props.className.includes("false") ? `white` : `green`)};
 
-    border-bottom-left-radius: 0.7vw;
-    border-bottom-right-radius: 0.7vw;
+    border-bottom-left-radius: 0.5vw;
+    border-bottom-right-radius: 0.5vw;
 
     align-items: center;
     justify-content: center;
@@ -143,12 +138,8 @@ const AchButton = styled.div`
 `;
 
 const Achievements = () => {
-    const [mainframeState, setMainframeState] = useRecoilState(
-        currentMainframeState
-    );
-    const [achievementList, setAchievementList] = useRecoilState(
-        currentAchievementList
-    );
+    const [mainframeState, setMainframeState] = useRecoilState(currentMainframeState);
+    const [achievementList, setAchievementList] = useRecoilState(currentAchievementList);
     const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
 
     const handleContinue = () => {
@@ -156,14 +147,13 @@ const Achievements = () => {
         setTimerIsRunning(true);
     };
 
+    
+
     return (
         <>
             <AchZone
                 style={{
-                    display:
-                        mainframeState === "onAchievementList"
-                            ? "flex"
-                            : "none",
+                    display: mainframeState === "onAchievementList" ? "flex" : "none",
                 }}
             >
                 <AchPopup>
@@ -172,9 +162,7 @@ const Achievements = () => {
                         {achievementList.map((achievement) => (
                             <Ach key={achievement.id}>
                                 <AchTitle>{achievement.title}</AchTitle>
-                                <AchText className={`${achievement.isDone}`}>
-                                    {achievement.text}
-                                </AchText>
+                                <AchText className={`${achievement.isDone}`}>{achievement.text}</AchText>
                             </Ach>
                         ))}
                     </AchList>
