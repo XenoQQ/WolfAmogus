@@ -1,11 +1,12 @@
 import { atom } from "recoil";
 
-export const fieldsState = atom({
-    key: "fieldsState",
+export const currentFieldsState = atom({
+    key: "currentFieldsState",
     default: [
         {
             id: 1,
             title: "Левый берег",
+
             items: [
                 { id: 1, title: "Волк" },
                 { id: 2, title: "Овца" },
@@ -17,14 +18,14 @@ export const fieldsState = atom({
     ],
 });
 
+export const currentBoatState = atom({
+    key: "currentBoatState",
+    default: "onLeft",
+});
+
 export const currentMainframeState = atom({
     key: "currentMainframeState",
     default: "onNewGame",
-});
-
-export const currentBoatStatus = atom({
-    key: "currentBoatStatus",
-    default: "onLeft",
 });
 
 export const currentTimer = atom({

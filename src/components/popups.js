@@ -3,7 +3,7 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { currentMainframeState, currentTimerIsRunning, currentTimer } from "../state/atoms";
 import styled from "styled-components";
 
-const PopupZone = styled.div`
+const PopupsFrame = styled.div`
     display: flex;
 
     position: absolute;
@@ -80,6 +80,7 @@ const PopupButton = styled.div`
 `;
 
 const Popups = ({ handleReset }) => {
+    
     const [currentPopupText, setCurrentPopupText] = useState("");
     const [mainframeState, setMainframeState] = useRecoilState(currentMainframeState);
 
@@ -123,7 +124,7 @@ const Popups = ({ handleReset }) => {
     };
 
     return (
-        <PopupZone
+        <PopupsFrame
             style={{
                 display: mainframeState === "onPlay" || mainframeState === "onAchievementList" ? "none" : "flex",
             }}
@@ -133,7 +134,7 @@ const Popups = ({ handleReset }) => {
                 {currentPopupText[1]}
                 <PopupButton onClick={handlePopupButtonClick}>{currentPopupText[2]}</PopupButton>
             </Popup>
-        </PopupZone>
+        </PopupsFrame>
     );
 };
 

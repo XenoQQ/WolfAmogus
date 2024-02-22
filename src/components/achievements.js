@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { currentMainframeState, currentTimerIsRunning, currentAchievementList } from "../state/atoms";
 
-const AchZone = styled.div`
+const AchFrame = styled.div`
     display: flex;
 
     position: absolute;
@@ -151,7 +151,7 @@ const Achievements = () => {
 
     return (
         <>
-            <AchZone
+            <AchFrame
                 style={{
                     display: mainframeState === "onAchievementList" ? "flex" : "none",
                 }}
@@ -168,7 +168,7 @@ const Achievements = () => {
                     </AchList>
                     <AchButton onClick={handleContinue}>Продолжить</AchButton>
                 </AchPopup>
-            </AchZone>
+            </AchFrame>
         </>
     );
 };
