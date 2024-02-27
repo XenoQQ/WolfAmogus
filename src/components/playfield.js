@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
-import { currentFieldsState, currentBoatState, currentMainframeState, currentTimerIsRunning } from "../state/atoms";
+import { currentFieldsState, currentBoatState, currentMainframeState, currentTimerIsRunning, currentAchievement } from "../state/atoms";
 
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
@@ -94,6 +94,7 @@ const Playfield = () => {
 
     const setMainFrameState = useSetRecoilState(currentMainframeState);
     const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
+    const setAchievement = useSetRecoilState(currentAchievement);
 
     const dragStartHandler = (e, field, item) => {
         setCurrentField(field);
@@ -197,24 +198,7 @@ const Playfield = () => {
         setBoatStatus((prevStatus) => (prevStatus === "onLeft" ? "onRight" : "onLeft"));
     };
 
-    const handleReset = () => {
-        setFields([
-            {
-                id: 1,
-                title: "Левый берег",
-                items: [
-                    { id: 1, title: "Волк" },
-                    { id: 2, title: "Овца" },
-                    { id: 3, title: "Капуста" },
-                ],
-            },
-            { id: 2, title: "Река", items: [] },
-            { id: 3, title: "Правый берег", items: [] },
-        ]);
-        setBoatStatus("onLeft");
-    };
-
-    const statusChecker = () => {
+    useEffect(() => {
         const westCoast = fields.find((field) => field.title === "Левый берег")?.items;
         const eastCoast = fields.find((field) => field.title === "Правый берег")?.items;
 
@@ -234,6 +218,7 @@ const Playfield = () => {
                 setMainFrameState("onDefeat");
             }, 350);
             setTimerIsRunning(false);
+            setAchievement(1);
         }
 
         if (eastCoast.length === 3) {
@@ -241,12 +226,9 @@ const Playfield = () => {
                 setMainFrameState("onSuccess");
             }, 350);
             setTimerIsRunning(false);
+            setAchievement(2);
         }
-    };
-
-    useEffect(() => {
-        statusChecker();
-    }, [fields, boatStatus]);
+    }, [fields, boatStatus, setAchievement, setTimerIsRunning, setMainFrameState]);
 
     return (
         <>

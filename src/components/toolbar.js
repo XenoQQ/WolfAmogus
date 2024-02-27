@@ -1,6 +1,14 @@
 import styled from "styled-components";
 import { useSetRecoilState } from "recoil";
-import { currentFieldsState, currentBoatState, currentMainframeState, currentTimer, currentTimerIsRunning } from "../state/atoms";
+import {
+    currentFieldsState,
+    currentBoatState,
+    currentMainframeState,
+    currentTimer,
+    currentTimerIsRunning,
+    currentAchievementsVisible,
+    currentAchievement
+} from "../state/atoms";
 
 import Timer from "./timer";
 
@@ -64,7 +72,6 @@ const Button = styled.button`
             : props.className.includes("restart")
             ? `no-repeat center/50% url(${Reset}), #c98343`
             : `no-repeat center/70% url(${Question}), #c98343`};
-
     border-style: none;
     border-radius: 1vh;
 
@@ -72,20 +79,13 @@ const Button = styled.button`
 `;
 
 const Toolbar = () => {
-    //////////////////////////////////////////[REFACTORED]//////////////////////////////////////////
-
     const setFields = useSetRecoilState(currentFieldsState);
     const setBoatStatus = useSetRecoilState(currentBoatState);
     const setMainframeState = useSetRecoilState(currentMainframeState);
-
-    /// OLD CODE////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     const setTimer = useSetRecoilState(currentTimer);
     const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
-
-    const handleAch = () => {
-        setMainframeState("onAchievementList");
-    };
+    const setAchievementsVisible = useSetRecoilState(currentAchievementsVisible);
+    const setAchievement = useSetRecoilState(currentAchievement);
 
     const handleReset = () => {
         setFields([
@@ -103,46 +103,43 @@ const Toolbar = () => {
             { id: 3, title: "Правый берег", items: [] },
         ]);
         setBoatStatus("onLeft");
-    };
-
-    const handleRules = () => {
-        setMainframeState("onRules");
-    };
-
-    const resetTimer = () => {
         setTimer(0);
         setTimerIsRunning(true);
     };
 
-    const handleStopTimer = () => {
+    const handleRules = () => {
+        setMainframeState("onRules");
         setTimerIsRunning(false);
+        setAchievement(5);
     };
 
+    const handleAch = () => {
+        setAchievementsVisible(true);
+        setTimerIsRunning(false);
+    };
+    // <Timer />
     return (
         <>
             <ToolbarFrame>
                 <GameTitle>Переправляющаяся братва</GameTitle>
-                <Timer />
+
                 <ButtonSection>
                     <Button
                         className="achievements"
                         onClick={() => {
                             handleAch();
-                            handleStopTimer();
                         }}
                     />
                     <Button
                         className="restart"
                         onClick={() => {
                             handleReset();
-                            resetTimer();
                         }}
                     />
                     <Button
                         className="rules"
                         onClick={() => {
                             handleRules();
-                            handleStopTimer();
                         }}
                     />
                 </ButtonSection>

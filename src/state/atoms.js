@@ -28,6 +28,11 @@ export const currentMainframeState = atom({
     default: "onNewGame",
 });
 
+export const currentAchievementsVisible = atom({
+    key: "currentAchievementsVisible",
+    default: false,
+});
+
 export const currentTimer = atom({
     key: "currentTimer",
     default: 0,
@@ -43,39 +48,7 @@ export const currentTimerResults = atom({
     default: [],
 });
 
-export const currentAchievementList = atom({
-    key: "currentAchievementStatus",
-    default: [
-        {
-            id: 1,
-            title: "Одна ошибка, и ты ошибся",
-            text: "Проиграй в игре",
-            isDone: false,
-        },
-        { id: 2, title: "Мастермайнд", text: "Победи в игре", isDone: false },
-        {
-            id: 3,
-            title: "Какой-то шото как будто бы обед будет?",
-            text: "Оставь на берегу тех, кто не ест друг-друга",
-            isDone: false,
-        },
-        {
-            id: 4,
-            title: "Регата",
-            text: "Перемести лодку 30 раз за игру",
-            isDone: false,
-        },
-        {
-            id: 5,
-            title: "Секунду, я сверюсь с правилами!",
-            text: "Открой правила",
-            isDone: false,
-        },
-        {
-            id: 6,
-            title: "Спидраннер",
-            text: "Выиграй игру меньше, чем за минуту",
-            isDone: false,
-        },
-    ],
-});
+export const currentAchievement = atom({
+    key: "currentAchievement",
+    default: null,
+})

@@ -1,26 +1,26 @@
 import styled from "styled-components";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { currentMainframeState, currentTimerIsRunning, currentAchievementList } from "../state/atoms";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { currentAchievementsVisible, currentTimerIsRunning, currentAchievement } from "../state/atoms";
+import { useEffect, useRef } from "react";
 
 const AchFrame = styled.div`
-    display: flex;
-
     position: absolute;
+    z-index: 9999;
+
+    display: flex;
 
     width: 100%;
     height: 100vh;
 
     background: rgba(0, 0, 0, 0.5);
-
-    z-index: 9999;
 `;
 
 const AchPopup = styled.div`
-    display: flex;
-
     position: absolute;
     left: calc(20% - 2vw);
     top: 16vh;
+
+    display: flex;
 
     width: calc(60% - 0.7vw);
     height: 55vh;
@@ -31,7 +31,6 @@ const AchPopup = styled.div`
     font-size: 2.5vh;
 
     background-color: #32aefc;
-
     border: 0.35vw solid #c98343;
     border-radius: 0.7vw;
 
@@ -46,10 +45,11 @@ const AchPopupTitle = styled.div`
 
     width: calc(100% / 4);
     height: 7vh;
+
     font-family: "Pacifico", cursive;
     font-size: 4vh;
-    color: black;
 
+    color: black;
     background-color: #32aefc;
 
     align-items: center;
@@ -74,7 +74,6 @@ const Ach = styled.div`
     height: 14vh;
 
     background: #c98343;
-
     border: 0.35vw solid #c98343;
     border-radius: 0.7vw;
 
@@ -83,6 +82,8 @@ const Ach = styled.div`
     justify-content: space-between;
 `;
 const AchTitle = styled.div`
+    z-index: 1000;
+
     display: flex;
 
     width: 100%;
@@ -94,8 +95,6 @@ const AchTitle = styled.div`
     justify-content: center;
 
     text-align: center;
-
-    z-index: 1000;
 `;
 
 const AchText = styled.div`
@@ -107,7 +106,6 @@ const AchText = styled.div`
     font-size: 2vh;
 
     background: ${(props) => (props.className.includes("false") ? `white` : `green`)};
-
     border-bottom-left-radius: 0.5vw;
     border-bottom-right-radius: 0.5vw;
 
@@ -122,12 +120,12 @@ const AchButton = styled.div`
 
     width: calc(100% / 4);
     height: 7vh;
+
     font-family: "Pacifico", cursive;
     font-size: 3.5vh;
+
     color: black;
-
     background-color: #32aefc;
-
     border: 0.35vw solid #c98343;
     border-radius: 0.7vw;
 
@@ -138,28 +136,68 @@ const AchButton = styled.div`
 `;
 
 const Achievements = () => {
-    const [mainframeState, setMainframeState] = useRecoilState(currentMainframeState);
-    const [achievementList, setAchievementList] = useRecoilState(currentAchievementList);
+    const [achievementsVisible, setAchievementsVisible] = useRecoilState(currentAchievementsVisible);
+
+    const achievement = useRecoilValue(currentAchievement);
+
     const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
 
+    const achievementListRef = useRef([
+        {
+            id: 1,
+            title: "Одна ошибка, и ты ошибся",
+            text: "Проиграй в игре",
+            isDone: false,
+        },
+        { id: 2, title: "Мастермайнд", text: "Победи в игре", isDone: false },
+        {
+            id: 3,
+            title: "Какой-то шото как будто бы обед будет?",
+            text: "Оставь на берегу тех, кто не ест друг-друга",
+            isDone: false,
+        },
+        {
+            id: 4,
+            title: "Регата",
+            text: "Перемести лодку 30 раз за игру",
+            isDone: false,
+        },
+        {
+            id: 5,
+            title: "Секунду, я сверюсь с правилами!",
+            text: "Открой правила",
+            isDone: false,
+        },
+        {
+            id: 6,
+            title: "Спидраннер",
+            text: "Выиграй игру меньше, чем за минуту",
+            isDone: false,
+        },
+    ]);
+
+    useEffect(() => {
+        achievementListRef.current = achievementListRef.current.map((achievementItem) =>
+            achievementItem.id === achievement ? { ...achievementItem, isDone: true } : achievementItem
+        );
+    }, [achievement]);
+
     const handleContinue = () => {
-        setMainframeState("onPlay");
+        setAchievementsVisible(false);
         setTimerIsRunning(true);
     };
-
-    
 
     return (
         <>
             <AchFrame
                 style={{
-                    display: mainframeState === "onAchievementList" ? "flex" : "none",
+                    display: achievementsVisible ? "flex" : "none",
                 }}
             >
                 <AchPopup>
                     <AchPopupTitle>Достижения</AchPopupTitle>
                     <AchList>
-                        {achievementList.map((achievement) => (
+                        {achievementListRef.current.map((achievement) => (
                             <Ach key={achievement.id}>
                                 <AchTitle>{achievement.title}</AchTitle>
                                 <AchText className={`${achievement.isDone}`}>{achievement.text}</AchText>

@@ -15,7 +15,6 @@ const TimerBar = styled.div`
     color: black;
 
     background-color: #32aefc;
-
     border: 0.35vw solid #c98343;
     border-radius: 0.7vw;
 
