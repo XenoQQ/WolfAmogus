@@ -1,5 +1,4 @@
-import "./App.css";
-import Mainframe from "./mainframe";
+import Mainframe from "./components/mainframe";
 import { RecoilRoot } from "recoil";
 
 const App = () => {

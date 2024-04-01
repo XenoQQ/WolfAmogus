@@ -1,46 +1,34 @@
 import { atom } from "recoil";
 
-export const currentFieldsState = atom({
-    key: "currentFieldsState",
-    default: [
-        {
-            id: 1,
-            title: "Левый берег",
+export const currentFieldStateAtom = atom({
+    key: "currentFieldStateAtom",
+    default: {
+        fields: [
+            {
+                id: 1,
+                title: "Левый берег",
 
-            items: [
-                { id: 1, title: "Волк" },
-                { id: 2, title: "Овца" },
-                { id: 3, title: "Капуста" },
-            ],
-        },
-        { id: 2, title: "Река", items: [] },
-        { id: 3, title: "Правый берег", items: [] },
-    ],
+                items: [
+                    { id: 1, title: "Волк" },
+                    { id: 2, title: "Овца" },
+                    { id: 3, title: "Капуста" },
+                ],
+            },
+            { id: 2, title: "Река", items: [] },
+            { id: 3, title: "Правый берег", items: [] },
+        ],
+        boat: "onLeft",
+    },
 });
 
-export const currentBoatState = atom({
-    key: "currentBoatState",
-    default: "onLeft",
-});
-
-export const currentMainframeState = atom({
-    key: "currentMainframeState",
+export const currentCaseAtom = atom({
+    key: "currentCaseAtom",
     default: "onNewGame",
 });
 
-export const currentAchievementsVisible = atom({
-    key: "currentAchievementsVisible",
-    default: false,
-});
-
-export const currentTimer = atom({
-    key: "currentTimer",
+export const currentTimerAtom = atom({
+    key: "currentTimerAtom",
     default: 0,
-});
-
-export const currentTimerIsRunning = atom({
-    key: "currentTimerIsRunning",
-    default: false,
 });
 
 export const currentTimerResults = atom({
@@ -48,7 +36,7 @@ export const currentTimerResults = atom({
     default: [],
 });
 
-export const currentAchievement = atom({
-    key: "currentAchievement",
+export const currentAchievementAtom = atom({
+    key: "currentAchievementAtom",
     default: null,
-})
+});

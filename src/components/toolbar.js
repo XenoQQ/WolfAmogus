@@ -1,14 +1,6 @@
 import styled from "styled-components";
 import { useSetRecoilState } from "recoil";
-import {
-    currentFieldsState,
-    currentBoatState,
-    currentMainframeState,
-    currentTimer,
-    currentTimerIsRunning,
-    currentAchievementsVisible,
-    currentAchievement
-} from "../state/atoms";
+import { currentFieldStateAtom, currentCaseAtom, currentAchievementAtom } from "../state/atoms";
 
 import Timer from "./timer";
 
@@ -79,50 +71,44 @@ const Button = styled.button`
 `;
 
 const Toolbar = () => {
-    const setFields = useSetRecoilState(currentFieldsState);
-    const setBoatStatus = useSetRecoilState(currentBoatState);
-    const setMainframeState = useSetRecoilState(currentMainframeState);
-    const setTimer = useSetRecoilState(currentTimer);
-    const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
-    const setAchievementsVisible = useSetRecoilState(currentAchievementsVisible);
-    const setAchievement = useSetRecoilState(currentAchievement);
+    const setCurrentFieldState = useSetRecoilState(currentFieldStateAtom);
+    const setCurrentCase = useSetRecoilState(currentCaseAtom);
+
+    const setAchievement = useSetRecoilState(currentAchievementAtom);
 
     const handleReset = () => {
-        setFields([
-            {
-                id: 1,
-                title: "Левый берег",
+        setCurrentFieldState({
+            fields: [
+                {
+                    id: 1,
+                    title: "Левый берег",
 
-                items: [
-                    { id: 1, title: "Волк" },
-                    { id: 2, title: "Овца" },
-                    { id: 3, title: "Капуста" },
-                ],
-            },
-            { id: 2, title: "Река", items: [] },
-            { id: 3, title: "Правый берег", items: [] },
-        ]);
-        setBoatStatus("onLeft");
-        setTimer(0);
-        setTimerIsRunning(true);
+                    items: [
+                        { id: 1, title: "Волк" },
+                        { id: 2, title: "Овца" },
+                        { id: 3, title: "Капуста" },
+                    ],
+                },
+                { id: 2, title: "Река", items: [] },
+                { id: 3, title: "Правый берег", items: [] },
+            ],
+            boat: "onLeft",
+        });
     };
 
     const handleRules = () => {
-        setMainframeState("onRules");
-        setTimerIsRunning(false);
+        setCurrentCase("onRules");
         setAchievement(5);
     };
 
     const handleAch = () => {
-        setAchievementsVisible(true);
-        setTimerIsRunning(false);
+        setCurrentCase("onAchievementList");
     };
-    // <Timer />
     return (
         <>
             <ToolbarFrame>
                 <GameTitle>Переправляющаяся братва</GameTitle>
-
+                <Timer />
                 <ButtonSection>
                     <Button
                         className="achievements"

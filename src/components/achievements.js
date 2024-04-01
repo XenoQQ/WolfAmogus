@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { currentAchievementsVisible, currentTimerIsRunning, currentAchievement } from "../state/atoms";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { currentCaseAtom, currentAchievementAtom } from "../state/atoms";
 import { useEffect, useRef } from "react";
+import { caseParams } from "../params/caseParams";
 
-const AchFrame = styled.div`
+const Frame = styled.div`
     position: absolute;
     z-index: 9999;
 
@@ -15,7 +16,7 @@ const AchFrame = styled.div`
     background: rgba(0, 0, 0, 0.5);
 `;
 
-const AchPopup = styled.div`
+const Popup = styled.div`
     position: absolute;
     left: calc(20% - 2vw);
     top: 16vh;
@@ -40,7 +41,7 @@ const AchPopup = styled.div`
     align-items: center;
 `;
 
-const AchPopupTitle = styled.div`
+const Title = styled.div`
     display: flex;
 
     width: calc(100% / 4);
@@ -56,7 +57,7 @@ const AchPopupTitle = styled.div`
     justify-content: center;
 `;
 
-const AchList = styled.div`
+const List = styled.div`
     display: flex;
 
     width: 90%;
@@ -67,7 +68,7 @@ const AchList = styled.div`
     align-items: center;
 `;
 
-const Ach = styled.div`
+const Element = styled.div`
     display: flex;
 
     width: 30%;
@@ -81,7 +82,7 @@ const Ach = styled.div`
     align-items: center;
     justify-content: space-between;
 `;
-const AchTitle = styled.div`
+const ElementTitle = styled.div`
     z-index: 1000;
 
     display: flex;
@@ -97,7 +98,7 @@ const AchTitle = styled.div`
     text-align: center;
 `;
 
-const AchText = styled.div`
+const ElementText = styled.div`
     display: flex;
 
     width: 100%;
@@ -115,7 +116,7 @@ const AchText = styled.div`
     text-align: center;
 `;
 
-const AchButton = styled.div`
+const Button = styled.div`
     display: flex;
 
     width: calc(100% / 4);
@@ -136,11 +137,11 @@ const AchButton = styled.div`
 `;
 
 const Achievements = () => {
-    const [achievementsVisible, setAchievementsVisible] = useRecoilState(currentAchievementsVisible);
+    const [currentCase, setCurrentCase] = useRecoilState(currentCaseAtom);
 
-    const achievement = useRecoilValue(currentAchievement);
+    const achievement = useRecoilValue(currentAchievementAtom);
 
-    const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
+    const paramsByCase = caseParams[currentCase];
 
     const achievementListRef = useRef([
         {
@@ -183,30 +184,27 @@ const Achievements = () => {
     }, [achievement]);
 
     const handleContinue = () => {
-        setAchievementsVisible(false);
-        setTimerIsRunning(true);
+        setCurrentCase("onPlay");
     };
 
     return (
         <>
-            <AchFrame
-                style={{
-                    display: achievementsVisible ? "flex" : "none",
-                }}
-            >
-                <AchPopup>
-                    <AchPopupTitle>Достижения</AchPopupTitle>
-                    <AchList>
-                        {achievementListRef.current.map((achievement) => (
-                            <Ach key={achievement.id}>
-                                <AchTitle>{achievement.title}</AchTitle>
-                                <AchText className={`${achievement.isDone}`}>{achievement.text}</AchText>
-                            </Ach>
-                        ))}
-                    </AchList>
-                    <AchButton onClick={handleContinue}>Продолжить</AchButton>
-                </AchPopup>
-            </AchFrame>
+            {paramsByCase.achievementListVisible && (
+                <Frame>
+                    <Popup>
+                        <Title>Достижения</Title>
+                        <List>
+                            {achievementListRef.current.map((achievement) => (
+                                <Element key={achievement.id}>
+                                    <ElementTitle>{achievement.title}</ElementTitle>
+                                    <ElementText className={`${achievement.isDone}`}>{achievement.text}</ElementText>
+                                </Element>
+                            ))}
+                        </List>
+                        <Button onClick={handleContinue}>Продолжить</Button>
+                    </Popup>
+                </Frame>
+            )}
         </>
     );
 };

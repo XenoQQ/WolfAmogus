@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { currentFieldsState, currentBoatState, currentMainframeState, currentTimerIsRunning, currentTimer } from "../state/atoms";
+import { currentFieldStateAtom, currentCaseAtom, currentTimerAtom } from "../state/atoms";
+import { caseParams } from "../params/caseParams";
 import styled from "styled-components";
 
-const PopupsFrame = styled.div`
+const Frame = styled.div`
     z-index: 9999;
     position: absolute;
 
@@ -41,7 +41,7 @@ const Popup = styled.div`
     align-items: center;
 `;
 
-const PopupTitle = styled.div`
+const Title = styled.div`
     display: flex;
 
     width: calc(100% / 4);
@@ -57,7 +57,7 @@ const PopupTitle = styled.div`
     justify-content: center;
 `;
 
-const PopupButton = styled.div`
+const Button = styled.div`
     display: flex;
 
     width: calc(100% / 4);
@@ -78,78 +78,51 @@ const PopupButton = styled.div`
 `;
 
 const Popups = () => {
-    const [mainframeState, setMainframeState] = useRecoilState(currentMainframeState);
+    const [currentCase, setCurrentCase] = useRecoilState(currentCaseAtom);
 
-    const setFields = useSetRecoilState(currentFieldsState);
-    const setBoatStatus = useSetRecoilState(currentBoatState);
+    const setFieldsState = useSetRecoilState(currentFieldStateAtom);
 
-    const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
-    const setTimer = useSetRecoilState(currentTimer);
-
-    const [popupText, setPopupText] = useState([
-        "Переправа",
-        "Однажды крестьянину понадобилось перевезти через реку волка, козу и капусту. У крестьянина есть лодка, в которой может поместиться, кроме самого крестьянина, только один объект — или волк, или коза, или капуста. Если крестьянин оставит без присмотра волка с козой, то волк съест козу; если крестьянин оставит без присмотра козу с капустой, коза съест капусту. В присутствии же крестьянина «никто никого не ест». Как крестьянину перевезти на другой берег всё своё имущество в целости и сохранности?",
-        "Играть",
-    ]);
-
-    useEffect(() => {
-        if (mainframeState !== "onNewGame" && mainframeState !== "onPlay") {
-            setPopupText(
-                mainframeState === "onDefeat"
-                    ? ["Неправильно", "Попробуй ещё раз!", "Начать заново"]
-                    : mainframeState === "onRules"
-                    ? [
-                          "Переправа",
-                          "Однажды крестьянину понадобилось перевезти через реку волка, козу и капусту. У крестьянина есть лодка, в которой может поместиться, кроме самого крестьянина, только один объект — или волк, или коза, или капуста. Если крестьянин оставит без присмотра волка с козой, то волк съест козу; если крестьянин оставит без присмотра козу с капустой, коза съест капусту. В присутствии же крестьянина «никто никого не ест». Как крестьянину перевезти на другой берег всё своё имущество в целости и сохранности?",
-                          "Продолжить",
-                      ]
-                    : mainframeState === "onSuccess"
-                    ? ["Победа!", "Ты молодец, это было славно ;)", "Начать заново"]
-                    : ""
-            );
-        }
-    }, [mainframeState]);
+    const paramsByCase = caseParams[currentCase];
 
     const handlePopupButtonClick = () => {
-        if (mainframeState === "onNewGame" || mainframeState === "onRules") {
-            setMainframeState("onPlay");
+        if (currentCase === "onNewGame" || currentCase === "onRules") {
+            setCurrentCase("onPlay");
         }
 
-        if (mainframeState === "onDefeat" || mainframeState === "onSuccess") {
-            setMainframeState("onPlay");
-            setFields([
-                {
-                    id: 1,
-                    title: "Левый берег",
+        if (currentCase === "onDefeat" || currentCase === "onSuccess") {
+            setCurrentCase("onPlay");
+            setFieldsState({
+                fields: [
+                    {
+                        id: 1,
+                        title: "Левый берег",
 
-                    items: [
-                        { id: 1, title: "Волк" },
-                        { id: 2, title: "Овца" },
-                        { id: 3, title: "Капуста" },
-                    ],
-                },
-                { id: 2, title: "Река", items: [] },
-                { id: 3, title: "Правый берег", items: [] },
-            ]);
-            setBoatStatus("onLeft");
-            setTimer(0);
+                        items: [
+                            { id: 1, title: "Волк" },
+                            { id: 2, title: "Овца" },
+                            { id: 3, title: "Капуста" },
+                        ],
+                    },
+                    { id: 2, title: "Река", items: [] },
+                    { id: 3, title: "Правый берег", items: [] },
+                ],
+                boat: "onLeft",
+            });
         }
-
-        setTimerIsRunning(true);
     };
 
     return (
-        <PopupsFrame
-            style={{
-                display: mainframeState === "onPlay" ? "none" : "flex",
-            }}
-        >
-            <Popup>
-                <PopupTitle>{popupText[0]}</PopupTitle>
-                {popupText[1]}
-                <PopupButton onClick={handlePopupButtonClick}>{popupText[2]}</PopupButton>
-            </Popup>
-        </PopupsFrame>
+        <>
+            {paramsByCase.popupVisible && (
+                <Frame>
+                    <Popup>
+                        <Title>{paramsByCase.popupTitle}</Title>
+                        {paramsByCase.popupDescripton}
+                        <Button onClick={handlePopupButtonClick}>{paramsByCase.popupButton}</Button>
+                    </Popup>
+                </Frame>
+            )}
+        </>
     );
 };
 

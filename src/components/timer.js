@@ -1,8 +1,9 @@
 import styled from "styled-components";
-import { useEffect } from "react";
-import { useRecoilState } from "recoil";
+import { useEffect, useState, useRef } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
 
-import { currentTimer, currentTimerIsRunning } from "../state/atoms";
+import { currentCaseAtom } from "../state/atoms";
+import { caseParams } from "../params/caseParams";
 
 const TimerBar = styled.div`
     display: flex;
@@ -12,8 +13,8 @@ const TimerBar = styled.div`
 
     font-family: "Pacifico", cursive;
     font-size: 3.4vh;
-    color: black;
 
+    color: black;
     background-color: #32aefc;
     border: 0.35vw solid #c98343;
     border-radius: 0.7vw;
@@ -22,12 +23,24 @@ const TimerBar = styled.div`
     justify-content: center;
 `;
 
-const Timer = () => {
-    const [timer, setTimer] = useRecoilState(currentTimer);
-    const [timerIsRunning, setTimerIsRunning] = useRecoilState(currentTimerIsRunning);
+const Timer = ({ handleTimerReset }) => {
+    const [timer, setTimer] = useState(0);
+
+    const currentCase = useRecoilValue(currentCaseAtom);
+
+    const lastCurrentCaseRef = useRef(currentCase);
+
+    const paramsByCase = caseParams[currentCase];
 
     useEffect(() => {
         let interval = null;
+
+        if (lastCurrentCaseRef.current === "onSuccess" || lastCurrentCaseRef.current === "onDefeat") {
+            setTimer(0);
+            console.log(lastCurrentCaseRef.current);
+        }
+
+        lastCurrentCaseRef.current = currentCase;
 
         const startTimer = () => {
             interval = setInterval(() => {
@@ -35,7 +48,7 @@ const Timer = () => {
             }, 1000);
         };
 
-        if (timerIsRunning) {
+        if (paramsByCase.timerActive) {
             startTimer();
         } else {
             clearInterval(interval);
@@ -44,7 +57,7 @@ const Timer = () => {
         return () => {
             clearInterval(interval);
         };
-    }, [setTimer, timerIsRunning]);
+    }, [currentCase]);
 
     const formatTime = (time) => {
         const minutes = Math.floor(time / 60);

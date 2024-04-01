@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
-import { currentFieldsState, currentBoatState, currentMainframeState, currentTimerIsRunning, currentAchievement } from "../state/atoms";
+import { currentFieldStateAtom, currentCaseAtom, currentAchievementAtom } from "../state/atoms";
 
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
@@ -86,15 +86,13 @@ const MoveButton = styled.button`
 `;
 
 const Playfield = () => {
+    const [currentFieldState, setCurrentFieldState] = useRecoilState(currentFieldStateAtom);
+
+    const setCurrentCase = useSetRecoilState(currentCaseAtom);
+    const setAchievement = useSetRecoilState(currentAchievementAtom);
+
     const [currentField, setCurrentField] = useState(null);
     const [currentItem, setCurrentItem] = useState(null);
-
-    const [fields, setFields] = useRecoilState(currentFieldsState);
-    const [boatStatus, setBoatStatus] = useRecoilState(currentBoatState);
-
-    const setMainFrameState = useSetRecoilState(currentMainframeState);
-    const setTimerIsRunning = useSetRecoilState(currentTimerIsRunning);
-    const setAchievement = useSetRecoilState(currentAchievement);
 
     const dragStartHandler = (e, field, item) => {
         setCurrentField(field);
@@ -111,20 +109,20 @@ const Playfield = () => {
                 isField &&
                 !((field.id - currentField.id) % 2 === 0) &&
                 !(field.title === "Река" && field.items.length >= 1) &&
-                !(field.title === "Река" && currentField.id === 1 && boatStatus === "onRight") &&
-                !(field.title === "Река" && currentField.id === 3 && boatStatus === "onLeft") &&
-                !(currentField.id === 2 && field.id === 1 && boatStatus === "onRight") &&
-                !(currentField.id === 2 && field.id === 3 && boatStatus === "onLeft")
+                !(field.title === "Река" && currentField.id === 1 && currentFieldState.boat === "onRight") &&
+                !(field.title === "Река" && currentField.id === 3 && currentFieldState.boat === "onLeft") &&
+                !(currentField.id === 2 && field.id === 1 && currentFieldState.boat === "onRight") &&
+                !(currentField.id === 2 && field.id === 3 && currentFieldState.boat === "onLeft")
             ) {
                 e.target.style.boxShadow = "0 0 0.7vw 0.7vw white inset";
             } else if (
                 isField &&
                 ((field.id - currentField.id) % 2 === 0 ||
                     (field.title === "Река" && field.items.length >= 1) ||
-                    (field.title === "Река" && currentField.id === 1 && boatStatus === "onRight") ||
-                    (field.title === "Река" && currentField.id === 3 && boatStatus === "onLeft") ||
-                    (currentField.id === 2 && field.id === 1 && boatStatus === "onRight") ||
-                    (currentField.id === 2 && field.id === 3 && boatStatus === "onLeft"))
+                    (field.title === "Река" && currentField.id === 1 && currentFieldState.boat === "onRight") ||
+                    (field.title === "Река" && currentField.id === 3 && currentFieldState.boat === "onLeft") ||
+                    (currentField.id === 2 && field.id === 1 && currentFieldState.boat === "onRight") ||
+                    (currentField.id === 2 && field.id === 3 && currentFieldState.boat === "onLeft"))
             ) {
                 e.target.style.boxShadow = "0 0 1.4vw 0.35vw red inset, 0 0 1.4vw 0.35vw white inset";
             }
@@ -152,14 +150,16 @@ const Playfield = () => {
 
             [newField[currentIndex], newField[dropIndex]] = [newField[dropIndex], newField[currentIndex]];
 
-            setFields(
-                fields.map((field) => {
+            setCurrentFieldState((prevState) => {
+                const newFields = prevState.fields.map((field) => {
                     if (field.id === currentField.id) {
                         return { ...field, items: newField };
                     }
                     return field;
-                })
-            );
+                });
+
+                return { ...prevState, fields: newFields };
+            });
         }
     };
 
@@ -170,18 +170,18 @@ const Playfield = () => {
             currentField.id !== field.id &&
             !((field.id - currentField.id) % 2 === 0) &&
             !(field.title === "Река" && field.items.length >= 1) &&
-            !(field.title === "Река" && currentField.id === 1 && boatStatus === "onRight") &&
-            !(field.title === "Река" && currentField.id === 3 && boatStatus === "onLeft") &&
-            !(currentField.id === 2 && field.id === 1 && boatStatus === "onRight") &&
-            !(currentField.id === 2 && field.id === 3 && boatStatus === "onLeft")
+            !(field.title === "Река" && currentField.id === 1 && currentFieldState.boat === "onRight") &&
+            !(field.title === "Река" && currentField.id === 3 && currentFieldState.boat === "onLeft") &&
+            !(currentField.id === 2 && field.id === 1 && currentFieldState.boat === "onRight") &&
+            !(currentField.id === 2 && field.id === 3 && currentFieldState.boat === "onLeft")
         ) {
             const newFieldItems = [...field.items, currentItem];
             const newCurrentFieldItems = [...currentField.items];
             const currentIndex = newCurrentFieldItems.indexOf(currentItem);
             newCurrentFieldItems.splice(currentIndex, 1);
 
-            setFields(
-                fields.map((f) => {
+            setCurrentFieldState((prevState) => {
+                const newFields = prevState.fields.map((f) => {
                     if (f.id === field.id) {
                         return { ...f, items: newFieldItems };
                     }
@@ -189,18 +189,20 @@ const Playfield = () => {
                         return { ...f, items: newCurrentFieldItems };
                     }
                     return f;
-                })
-            );
+                });
+
+                return { ...prevState, fields: newFields };
+            });
         }
     };
 
-    const toggleBoatStatus = () => {
-        setBoatStatus((prevStatus) => (prevStatus === "onLeft" ? "onRight" : "onLeft"));
+    const toggleBoat = () => {
+        setCurrentFieldState((prevState) => ({ ...prevState, boat: prevState.boat === "onLeft" ? "onRight" : "onLeft" }));
     };
 
     useEffect(() => {
-        const westCoast = fields.find((field) => field.title === "Левый берег")?.items;
-        const eastCoast = fields.find((field) => field.title === "Правый берег")?.items;
+        const westCoast = currentFieldState.fields.find((field) => field.title === "Левый берег")?.items;
+        const eastCoast = currentFieldState.fields.find((field) => field.title === "Правый берег")?.items;
 
         const isItemsTogether = (coast, item1, item2) => {
             return coast.some((item) => item.title === item1) && coast.some((item) => item.title === item2);
@@ -208,39 +210,37 @@ const Playfield = () => {
 
         if (
             (westCoast.length === 2 &&
-                boatStatus === "onRight" &&
+                currentFieldState.boat === "onRight" &&
                 (isItemsTogether(westCoast, "Волк", "Овца") || isItemsTogether(westCoast, "Овца", "Капуста"))) ||
             (eastCoast.length === 2 &&
-                boatStatus === "onLeft" &&
+                currentFieldState.boat === "onLeft" &&
                 (isItemsTogether(eastCoast, "Волк", "Овца") || isItemsTogether(eastCoast, "Овца", "Капуста")))
         ) {
             setTimeout(() => {
-                setMainFrameState("onDefeat");
+                setCurrentCase("onDefeat");
             }, 350);
-            setTimerIsRunning(false);
             setAchievement(1);
         }
 
         if (eastCoast.length === 3) {
             setTimeout(() => {
-                setMainFrameState("onSuccess");
+                setCurrentCase("onSuccess");
             }, 350);
-            setTimerIsRunning(false);
             setAchievement(2);
         }
-    }, [fields, boatStatus, setAchievement, setTimerIsRunning, setMainFrameState]);
+    }, [currentFieldState]);
 
     return (
         <>
             <PlayfieldFrame>
                 <MoveButton
                     onClick={() => {
-                        toggleBoatStatus();
+                        toggleBoat();
                     }}
                 >
                     Переправить
                 </MoveButton>
-                {fields.map((field) => (
+                {currentFieldState.fields.map((field) => (
                     <Field
                         key={field.id}
                         onDragOver={(e) => dragOverHandler(e, field)}
@@ -248,7 +248,7 @@ const Playfield = () => {
                         onDragLeave={(e) => dragLeaveHandler(e, field)}
                         title={field.title}
                         className="Field"
-                        data-boat-status={boatStatus}
+                        data-boat-status={currentFieldState.boat}
                     >
                         {field.items.map((item) => (
                             <Item
@@ -257,7 +257,7 @@ const Playfield = () => {
                                 onDragStart={(e) => dragStartHandler(e, field, item)}
                                 onDrop={(e) => dropHandler(e, field, item)}
                                 title={item.title}
-                                data-boat-status={boatStatus}
+                                data-boat-status={currentFieldState.boat}
                                 data-on-river={field.title === "Река"}
                             ></Item>
                         ))}
