@@ -81,6 +81,7 @@ const Popups = () => {
     const [currentCase, setCurrentCase] = useRecoilState(currentCaseAtom);
 
     const setFieldsState = useSetRecoilState(currentFieldStateAtom);
+    const setCurrentTimer = useSetRecoilState(currentTimerAtom);
 
     const paramsByCase = caseParams[currentCase];
 
@@ -108,6 +109,7 @@ const Popups = () => {
                 ],
                 boat: "onLeft",
             });
+            setCurrentTimer(0)
         }
     };
 

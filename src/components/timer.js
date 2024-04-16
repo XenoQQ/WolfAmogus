@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import { useEffect, useState, useRef } from "react";
+import { useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
-import { currentCaseAtom } from "../state/atoms";
+import { currentCaseAtom, currentTimerAtom } from "../state/atoms";
 import { caseParams } from "../params/caseParams";
 
 const TimerBar = styled.div`
@@ -23,24 +23,15 @@ const TimerBar = styled.div`
     justify-content: center;
 `;
 
-const Timer = ({ handleTimerReset }) => {
-    const [timer, setTimer] = useState(0);
+const Timer = () => {
+    const [timer, setTimer] = useRecoilState(currentTimerAtom);
 
     const currentCase = useRecoilValue(currentCaseAtom);
-
-    const lastCurrentCaseRef = useRef(currentCase);
 
     const paramsByCase = caseParams[currentCase];
 
     useEffect(() => {
         let interval = null;
-
-        if (lastCurrentCaseRef.current === "onSuccess" || lastCurrentCaseRef.current === "onDefeat") {
-            setTimer(0);
-            console.log(lastCurrentCaseRef.current);
-        }
-
-        lastCurrentCaseRef.current = currentCase;
 
         const startTimer = () => {
             interval = setInterval(() => {

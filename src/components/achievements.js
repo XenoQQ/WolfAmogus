@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { currentCaseAtom, currentAchievementAtom } from "../state/atoms";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { caseParams } from "../params/caseParams";
 
 const Frame = styled.div`
@@ -136,10 +136,36 @@ const Button = styled.div`
     cursor: pointer;
 `;
 
+const Notification = styled.div`
+    position: absolute;
+
+    top: ${(props) => (props["data-position"] === "visible" ? "20px" : "-110px")};
+    left: calc(50% - 150px);
+
+    display: flex;
+
+    width: 300px;
+    height: 100px;
+
+    font-family: "Pacifico", cursive;
+    font-size: 2vh;
+
+    color: black;
+    background-color: #32aefc;
+    border: 0.35vw solid #c98343;
+    border-radius: 0.7vw;
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 9999;
+    transition: 0.35s ease;
+`;
+
 const Achievements = () => {
     const [currentCase, setCurrentCase] = useRecoilState(currentCaseAtom);
 
-    const achievement = useRecoilValue(currentAchievementAtom);
+    const currentAchievement = useRecoilValue(currentAchievementAtom);
 
     const paramsByCase = caseParams[currentCase];
 
@@ -177,11 +203,58 @@ const Achievements = () => {
         },
     ]);
 
+    let [notificationStatus, setNotificationStatus] = useState({ active: false, visible: "hidden" });
+
+    const handleAchievmentShow = () => {
+        setNotificationStatus((prevstatus) => ({ ...prevstatus, active: true }));
+        setTimeout(() => {
+            setNotificationStatus((prevstatus) => ({ ...prevstatus, visible: "visible" }));
+        }, 10);
+        setTimeout(() => {
+            setNotificationStatus((prevstatus) => ({ ...prevstatus, visible: "hidden" }));
+        }, 3000);
+        setTimeout(() => {
+            setNotificationStatus((prevstatus) => ({ ...prevstatus, active: false }));
+        }, 6000);
+    };
+
+    const queue = (func, waitTime) => {
+        const funcQueue = [];
+        let isWaiting;
+
+        const executeFunc = (queueParams) => {
+            isWaiting = true;
+            func(queueParams);
+            setTimeout(play, waitTime);
+            console.log(funcQueue)
+        };
+
+        const play = () => {
+            isWaiting = false;
+            if (funcQueue.length) {
+                const queueParams = funcQueue.shift();
+                executeFunc(queueParams);
+            }
+        };
+
+        return (queueParams) => {
+            isWaiting ? funcQueue.push(queueParams) : executeFunc(queueParams);
+        };
+    };
+
     useEffect(() => {
-        achievementListRef.current = achievementListRef.current.map((achievementItem) =>
-            achievementItem.id === achievement ? { ...achievementItem, isDone: true } : achievementItem
+        const isAchievementUnlocked = achievementListRef.current.find((achievement) => achievement.title === currentAchievement);
+
+        /* if (isAchievementUnlocked?.isDone === false) {
+            handleAchievmentShow();
+        } */
+
+        queue(handleAchievmentShow(), 3000);
+
+        achievementListRef.current = achievementListRef.current.map((achievement) =>
+            achievement.title === currentAchievement ? { ...achievement, isDone: true } : achievement
         );
-    }, [achievement]);
+    }, [currentAchievement]);
 
     const handleContinue = () => {
         setCurrentCase("onPlay");
@@ -194,10 +267,10 @@ const Achievements = () => {
                     <Popup>
                         <Title>Достижения</Title>
                         <List>
-                            {achievementListRef.current.map((achievement) => (
-                                <Element key={achievement.id}>
-                                    <ElementTitle>{achievement.title}</ElementTitle>
-                                    <ElementText className={`${achievement.isDone}`}>{achievement.text}</ElementText>
+                            {achievementListRef.current.map((currentAchievement) => (
+                                <Element key={currentAchievement.id}>
+                                    <ElementTitle>{currentAchievement.title}</ElementTitle>
+                                    <ElementText className={`${currentAchievement.isDone}`}>{currentAchievement.text}</ElementText>
                                 </Element>
                             ))}
                         </List>
@@ -205,6 +278,7 @@ const Achievements = () => {
                     </Popup>
                 </Frame>
             )}
+            {notificationStatus.active && <Notification data-position={notificationStatus.visible} />}
         </>
     );
 };

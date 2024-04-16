@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
@@ -89,7 +89,7 @@ const Playfield = () => {
     const [currentFieldState, setCurrentFieldState] = useRecoilState(currentFieldStateAtom);
 
     const setCurrentCase = useSetRecoilState(currentCaseAtom);
-    const setAchievement = useSetRecoilState(currentAchievementAtom);
+    const setUnlockedAchievement = useSetRecoilState(currentAchievementAtom);
 
     const [currentField, setCurrentField] = useState(null);
     const [currentItem, setCurrentItem] = useState(null);
@@ -200,6 +200,31 @@ const Playfield = () => {
         setCurrentFieldState((prevState) => ({ ...prevState, boat: prevState.boat === "onLeft" ? "onRight" : "onLeft" }));
     };
 
+    let isWaitingRef = useRef(undefined);
+    let funcQueueRef = useRef([]);
+
+    let toggleBoatQueue = (func, waitTime) => {
+        const executeFunc = () => {
+            isWaitingRef.current = true;
+            func();
+            setTimeout(nextFunc, waitTime);
+        };
+
+        const nextFunc = () => {
+            isWaitingRef.current = false;
+            if (funcQueueRef.current.length) {
+                funcQueueRef.current.shift();
+                executeFunc();
+            }
+        };
+
+        return () => {
+            isWaitingRef.current ? funcQueueRef.current.push(func) : executeFunc();
+        };
+    };
+
+    const queuedToggleBoat = toggleBoatQueue(toggleBoat, 3000);
+
     useEffect(() => {
         const westCoast = currentFieldState.fields.find((field) => field.title === "Левый берег")?.items;
         const eastCoast = currentFieldState.fields.find((field) => field.title === "Правый берег")?.items;
@@ -219,14 +244,14 @@ const Playfield = () => {
             setTimeout(() => {
                 setCurrentCase("onDefeat");
             }, 350);
-            setAchievement(1);
+            setUnlockedAchievement("Одна ошибка, и ты ошибся");
         }
 
         if (eastCoast.length === 3) {
             setTimeout(() => {
                 setCurrentCase("onSuccess");
             }, 350);
-            setAchievement(2);
+            setUnlockedAchievement("Мастермайнд");
         }
     }, [currentFieldState]);
 
@@ -235,7 +260,7 @@ const Playfield = () => {
             <PlayfieldFrame>
                 <MoveButton
                     onClick={() => {
-                        toggleBoat();
+                        queuedToggleBoat();
                     }}
                 >
                     Переправить

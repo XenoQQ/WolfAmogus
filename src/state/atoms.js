@@ -31,7 +31,7 @@ export const currentTimerAtom = atom({
     default: 0,
 });
 
-export const currentTimerResults = atom({
+export const currentTimerResultsAtom = atom({
     key: "currentTimerResults",
     default: [],
 });

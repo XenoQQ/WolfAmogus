@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useSetRecoilState } from "recoil";
-import { currentFieldStateAtom, currentCaseAtom, currentAchievementAtom } from "../state/atoms";
+import { currentFieldStateAtom, currentCaseAtom, currentAchievementAtom, currentTimerAtom } from "../state/atoms";
 
 import Timer from "./timer";
 
@@ -73,8 +73,8 @@ const Button = styled.button`
 const Toolbar = () => {
     const setCurrentFieldState = useSetRecoilState(currentFieldStateAtom);
     const setCurrentCase = useSetRecoilState(currentCaseAtom);
-
-    const setAchievement = useSetRecoilState(currentAchievementAtom);
+    const setCurrentTimer = useSetRecoilState(currentTimerAtom);
+    const setUnlockedAchievement = useSetRecoilState(currentAchievementAtom);
 
     const handleReset = () => {
         setCurrentFieldState({
@@ -94,16 +94,18 @@ const Toolbar = () => {
             ],
             boat: "onLeft",
         });
+        setCurrentTimer(0);
     };
 
     const handleRules = () => {
         setCurrentCase("onRules");
-        setAchievement(5);
+        setUnlockedAchievement("Секунду, я сверюсь с правилами!");
     };
 
     const handleAch = () => {
         setCurrentCase("onAchievementList");
     };
+
     return (
         <>
             <ToolbarFrame>
