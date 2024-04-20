@@ -1,8 +1,29 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { currentCaseAtom, currentAchievementAtom } from "../state/atoms";
 import { useEffect, useRef, useState } from "react";
 import { caseParams } from "../params/caseParams";
+
+const moveUpDown = keyframes`
+  0% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(130px);
+  }
+  40% {
+    transform: translateY(130px);
+  }
+  60% {
+    transform: translateY(130px);
+  }
+  80% {
+    transform: translateY(130px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+`;
 
 const Frame = styled.div`
     position: absolute;
@@ -139,7 +160,7 @@ const Button = styled.div`
 const Notification = styled.div`
     position: absolute;
 
-    top: ${(props) => (props["data-position"] === "visible" ? "20px" : "-110px")};
+    top: -110px;
     left: calc(50% - 150px);
 
     display: flex;
@@ -156,10 +177,13 @@ const Notification = styled.div`
     border-radius: 0.7vw;
 
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+
+    flex-direction: column;
 
     z-index: 9999;
-    transition: 0.35s ease;
+
+    animation: ${moveUpDown} 5s infinite;
 `;
 
 const Achievements = () => {
@@ -203,53 +227,50 @@ const Achievements = () => {
         },
     ]);
 
-    let [notificationStatus, setNotificationStatus] = useState({ active: false, visible: "hidden" });
-
-    const handleAchievmentShow = () => {
-        setNotificationStatus((prevstatus) => ({ ...prevstatus, active: true }));
-        setTimeout(() => {
-            setNotificationStatus((prevstatus) => ({ ...prevstatus, visible: "visible" }));
-        }, 10);
-        setTimeout(() => {
-            setNotificationStatus((prevstatus) => ({ ...prevstatus, visible: "hidden" }));
-        }, 3000);
-        setTimeout(() => {
-            setNotificationStatus((prevstatus) => ({ ...prevstatus, active: false }));
-        }, 6000);
-    };
+    let isWaitingRef = useRef(false);
+    let funcQueueRef = useRef([]);
+    let currentTextRef = useRef(null);
 
     const queue = (func, waitTime) => {
-        const funcQueue = [];
-        let isWaiting;
-
-        const executeFunc = (queueParams) => {
-            isWaiting = true;
-            func(queueParams);
+        const executeFunc = (params) => {
+            isWaitingRef.current = true;
+            func(params);
             setTimeout(play, waitTime);
-            console.log(funcQueue)
         };
 
         const play = () => {
-            isWaiting = false;
-            if (funcQueue.length) {
-                const queueParams = funcQueue.shift();
-                executeFunc(queueParams);
+            isWaitingRef.current = false;
+            handleAchievementDismiss();
+            if (funcQueueRef.current.length) {
+                const params = funcQueueRef.current.shift();
+                executeFunc(params);
             }
         };
 
-        return (queueParams) => {
-            isWaiting ? funcQueue.push(queueParams) : executeFunc(queueParams);
+        return (params) => {
+            isWaitingRef.current ? funcQueueRef.current.push(params) : executeFunc(params);
         };
     };
 
+    let [notificationStatus, setNotificationStatus] = useState({ visible: false, text: null });
+
+    const handleAchievementShow = (achievementText) => {
+        setNotificationStatus({ visible: true, text: achievementText });
+    };
+
+    const handleAchievementDismiss = () => {
+        setNotificationStatus({ ...notificationStatus, visible: false });
+    };
+
+    const queuedAchievementShow = queue(handleAchievementShow, 5000);
+
     useEffect(() => {
-        const isAchievementUnlocked = achievementListRef.current.find((achievement) => achievement.title === currentAchievement);
+        const currentAchievementToShow = achievementListRef.current.find((achievement) => achievement.title === currentAchievement);
 
-        /* if (isAchievementUnlocked?.isDone === false) {
-            handleAchievmentShow();
-        } */
-
-        queue(handleAchievmentShow(), 3000);
+        if (currentAchievementToShow?.isDone === false) {
+            currentTextRef.current = currentAchievementToShow.title;
+            queuedAchievementShow(currentTextRef.current);
+        }
 
         achievementListRef.current = achievementListRef.current.map((achievement) =>
             achievement.title === currentAchievement ? { ...achievement, isDone: true } : achievement
@@ -278,7 +299,12 @@ const Achievements = () => {
                     </Popup>
                 </Frame>
             )}
-            {notificationStatus.active && <Notification data-position={notificationStatus.visible} />}
+            {notificationStatus.visible && (
+                <Notification>
+                    <h3>Разблокировано достижение:</h3>
+                    {notificationStatus.text}
+                </Notification>
+            )}
         </>
     );
 };

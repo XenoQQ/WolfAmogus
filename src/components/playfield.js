@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 
-import { currentFieldStateAtom, currentCaseAtom, currentAchievementAtom } from "../state/atoms";
+import { currentFieldStateAtom, currentCaseAtom, currentAchievementAtom, currentTimerAtom } from "../state/atoms";
 
 import Sand from "../assets/sand.jpg";
 import Water from "../assets/water.png";
@@ -90,6 +90,8 @@ const Playfield = () => {
 
     const setCurrentCase = useSetRecoilState(currentCaseAtom);
     const setUnlockedAchievement = useSetRecoilState(currentAchievementAtom);
+
+    const currentTimer = useRecoilValue(currentTimerAtom);
 
     const [currentField, setCurrentField] = useState(null);
     const [currentItem, setCurrentItem] = useState(null);
@@ -197,33 +199,12 @@ const Playfield = () => {
     };
 
     const toggleBoat = () => {
-        setCurrentFieldState((prevState) => ({ ...prevState, boat: prevState.boat === "onLeft" ? "onRight" : "onLeft" }));
+        setCurrentFieldState((prevState) => ({
+            ...prevState,
+            boat: prevState.boat === "onLeft" ? "onRight" : "onLeft",
+            boatCounter: prevState.boatCounter + 1,
+        }));
     };
-
-    let isWaitingRef = useRef(undefined);
-    let funcQueueRef = useRef([]);
-
-    let toggleBoatQueue = (func, waitTime) => {
-        const executeFunc = () => {
-            isWaitingRef.current = true;
-            func();
-            setTimeout(nextFunc, waitTime);
-        };
-
-        const nextFunc = () => {
-            isWaitingRef.current = false;
-            if (funcQueueRef.current.length) {
-                funcQueueRef.current.shift();
-                executeFunc();
-            }
-        };
-
-        return () => {
-            isWaitingRef.current ? funcQueueRef.current.push(func) : executeFunc();
-        };
-    };
-
-    const queuedToggleBoat = toggleBoatQueue(toggleBoat, 3000);
 
     useEffect(() => {
         const westCoast = currentFieldState.fields.find((field) => field.title === "Левый берег")?.items;
@@ -250,8 +231,19 @@ const Playfield = () => {
         if (eastCoast.length === 3) {
             setTimeout(() => {
                 setCurrentCase("onSuccess");
+                if (currentTimer <= 60) {
+                    setUnlockedAchievement("Спидраннер");
+                }
             }, 350);
             setUnlockedAchievement("Мастермайнд");
+        }
+
+        if (westCoast.length === 2 && currentFieldState.boat === "onRight" && isItemsTogether(westCoast, "Волк", "Капуста")) {
+            setUnlockedAchievement("Какой-то шото как будто бы обед будет?");
+        }
+
+        if (currentFieldState.boatCounter >= 30) {
+            setUnlockedAchievement("Регата");
         }
     }, [currentFieldState]);
 
@@ -260,7 +252,7 @@ const Playfield = () => {
             <PlayfieldFrame>
                 <MoveButton
                     onClick={() => {
-                        queuedToggleBoat();
+                        toggleBoat();
                     }}
                 >
                     Переправить

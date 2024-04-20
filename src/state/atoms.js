@@ -18,6 +18,7 @@ export const currentFieldStateAtom = atom({
             { id: 3, title: "Правый берег", items: [] },
         ],
         boat: "onLeft",
+        boatCounter: 0,
     },
 });
 
@@ -29,11 +30,6 @@ export const currentCaseAtom = atom({
 export const currentTimerAtom = atom({
     key: "currentTimerAtom",
     default: 0,
-});
-
-export const currentTimerResultsAtom = atom({
-    key: "currentTimerResults",
-    default: [],
 });
 
 export const currentAchievementAtom = atom({

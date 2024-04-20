@@ -93,6 +93,7 @@ const Toolbar = () => {
                 { id: 3, title: "Правый берег", items: [] },
             ],
             boat: "onLeft",
+            boatCounter: 0,
         });
         setCurrentTimer(0);
     };
