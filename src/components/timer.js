@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { useEffect } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 
-import { currentCaseAtom, currentTimerAtom } from "../state/atoms";
+import { currentCaseAtom, currentTimerAtom, currentAchievementAtom } from "../state/atoms";
 import { caseParams } from "../params/caseParams";
 
 const TimerBar = styled.div`
@@ -28,6 +28,8 @@ const Timer = () => {
 
     const currentCase = useRecoilValue(currentCaseAtom);
 
+    const setUnlockedAchievemet = useSetRecoilState(currentAchievementAtom);
+
     const paramsByCase = caseParams[currentCase];
 
     useEffect(() => {
@@ -43,6 +45,12 @@ const Timer = () => {
             startTimer();
         } else {
             clearInterval(interval);
+        }
+
+        if (currentCase === "onSuccess") {
+            if (timer <= 60) {
+                setUnlockedAchievemet("Спидраннер");
+            }
         }
 
         return () => {
